@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+#
+# Copyright (C) 2019 @alanndz (Telegram and Github)
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+while (( ${#} )); do
+    case ${1} in
+        "-s"|"--switch") shift; S=true; SWITCH=${1} ;;
+        "-r"|"--release") shift; R=true; VERSION=${1} ;;
+        "-c"|"--check") shift; C=true ;;
+    esac
+    shift
+done
+
+CODE=( "quantum" "void" "twilight" "drifter" )
+CONF="${PWD}/config"
+FILE="build.sh"
+
+function info() {
+    for i in "${@}"; do
+        echo "${i}"
+    done
+}
+
+if [[ ${S} && -z ${SWITCH} ]]; then
+    info "" \
+         "Enter specific codename!!" \
+         "" \
+         "Codename already is:"
+    for i in "${CODE[@]}"; do
+        echo "      ${i}"
+    done
+    exit
+fi
+
+if [[ ${R} && -z ${VERSION} ]]; then
+    info "" \
+        "Enter specific version!!" \
+        "example: -r/--release v1.30"
+    exit
+fi
+
+if [[ ${C} ]]; then
+    info "" \
+         "Release: $(cat ${CONF}/conf-release)" \
+         "Version: $(cat ${CONF}/conf-version)" \
+         "Type: $(cat ${CONF}/conf-type)" \
+         "Codename: $(cat ${CONF}/conf-codename)" \
+         "Branch: $(cat ${CONF}/conf-branch)"
+fi
+
+## Release Write
+if [[ ${R} ]]; then
+    echo "1" > "${CONF}/conf-release"
+    echo "${VERSION}" > "${CONF}/conf-version"
+else
+    echo "0" > "${CONF}/conf-release"
+fi
+## END ##
+
+## Write CODENAME, BRANCH, TYPE_KERNEL ##
+## Write CODENAME, BRANCH, TYPE_KERNEL ##
+if [[ $S && $SWITCH == "quantum" ]]; then
+    echo "Quantum" > "${CONF}/conf-codename"
+    echo "CFS/EAS" > "${CONF}/conf-type"
+    echo "${SWITCH}" > "${CONF}/conf-branch"
+
+elif [[ $S && $SWITCH == "void" ]]; then
+    echo "Void-Pie" > "${CONF}/conf-codename"
+    echo "EAS" > "${CONF}/conf-type"
+    echo "${SWITCH}" > "${CONF}/conf-branch"
+
+elif [[ $S && $SWITCH == "twilight" ]]; then
+    echo "Twilight" > "${CONF}/conf-codename"
+    echo "HMP" > "${CONF}/conf-type"
+    echo "${SWITCH}" > "${CONF}/conf-branch"
+
+elif [[ $S && $SWITCH == "drifter" ]]; then
+    echo "Drifter" > "${CONF}/conf-codename"
+    echo "HMP" > "${CONF}/conf-type"
+    echo "${SWITCH}" > "${CONF}/conf-branch"
+
+fi

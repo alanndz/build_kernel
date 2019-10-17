@@ -1,8 +1,11 @@
 version: 2
 jobs:
-  Building-Kernel:
+  build:
     docker:
       - image: najahi/oven:latest
     steps:
-      - run: chmod +x build.sh
-      - run: bash build.sh
+      - checkout
+      - run: bash ./build.sh
+    filters:
+      branches:
+        only: master

@@ -1,0 +1,19 @@
+kind: pipeline
+name: Build Kernel Lavender
+
+platform:
+  os: linux
+  arch: amd64
+
+clone:
+  depth: 1
+
+steps:
+  - name: building
+    image: najahi/oven:latest
+    commands:
+      - chmod +x build.sh
+      - bash build.sh
+    when:
+      branch:
+        - lavender

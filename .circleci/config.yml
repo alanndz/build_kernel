@@ -1,0 +1,8 @@
+version: 2
+jobs:
+  Building-Kernel:
+    docker:
+      - image: najahi/oven:latest
+    steps:
+      - run: chmod +x build.sh
+      - run: bash build.sh

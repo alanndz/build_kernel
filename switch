@@ -8,7 +8,8 @@ while (( ${#} )); do
     case ${1} in
         "-s"|"--switch") shift; S=true; SWITCH=${1} ;;
         "-r"|"--release") shift; R=true; VERSION=${1} ;;
-        "-c"|"--check") shift; C=true ;;
+        "-c"|"--check") C=true ;;
+        "-p"|"--push") P=true ;;
     esac
     shift
 done
@@ -54,12 +55,14 @@ fi
 if [[ ${R} ]]; then
     echo "1" > "${CONF}/conf-release"
     echo "${VERSION}" > "${CONF}/conf-version"
+    git commit -asm "Release: aLn $(cat "${CONF}/conf-codename") $(cat "${CONF}/conf-version")"
+    exit
 else
     echo "0" > "${CONF}/conf-release"
+    git commit -asm "Switch: Back to CI"
 fi
 ## END ##
 
-## Write CODENAME, BRANCH, TYPE_KERNEL ##
 ## Write CODENAME, BRANCH, TYPE_KERNEL ##
 if [[ $S && $SWITCH == "quantum" ]]; then
     echo "Quantum" > "${CONF}/conf-codename"
@@ -82,3 +85,7 @@ elif [[ $S && $SWITCH == "drifter" ]]; then
     echo "${SWITCH}" > "${CONF}/conf-branch"
 
 fi
+
+git commit -asm "Switch: Build aLn $(cat "${CONF}/conf-codename")"
+
+[[ ${P} ]] && { git push -f; }

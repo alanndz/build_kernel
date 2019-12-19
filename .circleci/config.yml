@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: najahi/oven:latest
+      - image: alanndz/oven:latest
     steps:
       - checkout
       - run: bash ./build.sh

@@ -14,7 +14,7 @@ while (( ${#} )); do
     shift
 done
 
-CODE=( "quantum" "void" "twilight" "drifter" "kaiserin" )
+CODE=( "quantum" "void" "twilight" "drifter" "kaiserin" "kasumi" )
 CONF="${PWD}/config"
 FILE="build.sh"
 
@@ -87,6 +87,11 @@ elif [[ $S && $SWITCH == "drifter" ]]; then
 elif [[ $S && $SWITCH == "kaiserin" ]]; then
     echo "Kaiserin" > "${CONF}/conf-codename"
     echo "CFS" > "${CONF}/conf-type"
+    echo "${SWITCH}" > "${CONF}/conf-branch"
+
+elif [[ $S && $SWITCH == "kasumi" ]]; then
+    echo "Kasumi" > "${CONF}/conf-codename"
+    echo "EAS" > "${CONF}/conf-type"
     echo "${SWITCH}" > "${CONF}/conf-branch"
 
 fi

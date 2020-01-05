@@ -21,8 +21,10 @@ BRANCH="$(cat "${CONF}/conf-branch")"
 
 unset token
 export token=${token_tele}
+GIT_TOKEN=$(openssl enc -base64 -d <<< ${git_token})
 
-git clone --depth=1 -b $BRANCH https://github.com/alanndz/kernel_xiaomi_lavender saus
+git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/${git_username}/${git_repo}.git saus
+
 cd saus
 
 wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/clang.sh

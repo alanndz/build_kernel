@@ -6,7 +6,7 @@
 CONF="${PWD}/config"
 
 export RELEASE_STATUS=$(cat "${CONF}/conf-release")
-export USECLANG=11
+export USECLANG=10
 export USEGCC=3
 export CODENAME="$(cat "${CONF}/conf-codename")"
 export KERNEL_VERSION="$(cat "${CONF}/conf-version")"

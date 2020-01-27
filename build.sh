@@ -16,7 +16,7 @@ export DEVICES="lavender"
 export CONFIG_FILE="lavender_defconfig"
 export JOBS=8
 export CUSTOM_DTB=0
-export SEND_TO_HANA_CI=true
+# export SEND_TO_HANA_CI=true
 BRANCH="$(cat "${CONF}/conf-branch")"
 
 unset token

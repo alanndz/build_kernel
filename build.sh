@@ -8,22 +8,26 @@ CONF="${PWD}/config"
 export RELEASE_STATUS=$(cat "${CONF}/conf-release")
 export USECLANG=10
 export USEGCC=3
-export CODENAME="$(cat "${CONF}/conf-codename")"
+export KERNEL_NAME=FUS10N
+#export CODENAME="$(cat "${CONF}/conf-codename")"
+export CODENAME=Summer_Dream
 export KERNEL_VERSION="$(cat "${CONF}/conf-version")"
-export TYPE_KERNEL="$(cat "${CONF}/conf-type")"
+# export TYPE_KERNEL="$(cat "${CONF}/conf-type")"
+export TYPE_KERNEL="HMP"
 export PHONE="Redmi Note 7"
 export DEVICES="lavender"
 export CONFIG_FILE="lavender_defconfig"
 export JOBS=8
 export CUSTOM_DTB=0
-# export SEND_TO_HANA_CI=true
-BRANCH="$(cat "${CONF}/conf-branch")"
+export SEND_TO_HANA_CI=true
+# BRANCH="$(cat "${CONF}/conf-branch")"
+BRANCH=new-hmp
 
 unset token
 export token=${token_tele}
 GIT_TOKEN=$(openssl enc -base64 -d <<< ${git_token})
 
-git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/${git_username}/${git_repo}.git saus
+git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/${git_username2}/${git_repo2}.git saus
 
 cd saus
 

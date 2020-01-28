@@ -55,7 +55,7 @@ fi
 if [[ ${R} ]]; then
     echo "1" > "${CONF}/conf-release"
     echo "${VERSION}" > "${CONF}/conf-version"
-    git commit -asm "Release: aLn $(cat "${CONF}/conf-codename") $(cat "${CONF}/conf-version")"
+    git commit -asm "Release: Fusion $(cat "${CONF}/conf-codename") $(cat "${CONF}/conf-version")"
     exit
 else
     echo "0" > "${CONF}/conf-release"
@@ -101,6 +101,6 @@ elif [[ $S && $SWITCH == "hanami" ]]; then
 
 fi
 
-git commit -asm "Switch: Build aLn $(cat "${CONF}/conf-codename")"
+git commit -asm "Switch: Build Fusion $(cat "${CONF}/conf-codename")"
 
 [[ ${P} ]] && { git push -f; }

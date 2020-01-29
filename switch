@@ -23,22 +23,37 @@ function info() {
     done
 }
 
+#Codename
 if [[ ${C} && -z ${CODENAME} ]]; then
     info "" \
          "Enter specific codename!!" \
          "" 
     exit
 else
+    echo "Codename: ${CODENAME}"
     echo "${CODENAME}" > "${CONF}/conf-codename"
 fi
 
+#Release
 if [[ ${R} && -z ${VERSION} ]]; then
     info "" \
         "Enter specific version!!" \
-        "example: -r/--release v1.30"
+        "example: -r/--release v1.00"
+    exit
+elif [[ ${R} && ${VERSION} ]]; then
+    echo "Release: True"
+    echo "1" > "${CONF}/conf-release"
+    echo "${VERSION}" > "${CONF}/conf-version"
+    git commit -asm "Release: Fusion $(cat "${CONF}/conf-codename") $(cat "${CONF}/conf-version")"
+    exit
+else
+    echo "Release: False"
+    echo "0" > "${CONF}/conf-release"
+    git commit -asm "Switch: Back to CI"
     exit
 fi
 
+# Status
 if [[ ${S} ]]; then
     info "" \
          "Release: $(cat ${CONF}/conf-release)" \
@@ -50,18 +65,6 @@ if [[ ${S} ]]; then
 fi
 
 ## Release Write
-if [[ ${R} ]]; then
-    echo "1" > "${CONF}/conf-release"
-    echo "${VERSION}" > "${CONF}/conf-version"
-    git commit -asm "Release: Fusion $(cat "${CONF}/conf-codename") $(cat "${CONF}/conf-version")"
-    exit
-else
-    echo "0" > "${CONF}/conf-release"
-    git commit -asm "Switch: Back to CI"
-    exit
-fi
 ## END ##
 
-fi
-
-git commit -asm "Switch: Build Fusion $(cat "${CONF}/conf-codename")"
+# git commit -asm "Switch: Build Fusion $(cat "${CONF}/conf-codename")"

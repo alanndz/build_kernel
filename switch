@@ -40,13 +40,14 @@ if [[ ${R} && -z ${VERSION} ]]; then
         "Enter specific version!!" \
         "example: -r/--release v1.00"
     exit
-elif [[ ${R} && ${VERSION} ]]; then
+fi
+if [[ ${R} && ${VERSION} ]]; then
     echo "Release: True"
     echo "1" > "${CONF}/conf-release"
     echo "${VERSION}" > "${CONF}/conf-version"
     git commit -asm "Release: Fusion $(cat "${CONF}/conf-codename") $(cat "${CONF}/conf-version")"
     exit
-elif [[ -z ${R} && -z ${VERSION} ]]; then
+else
     echo "Release: False"
     echo "0" > "${CONF}/conf-release"
     git commit -asm "Switch: Back to CI"

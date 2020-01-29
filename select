@@ -34,6 +34,10 @@ class Main:
             elif opt in ("-n", "--new"):
                 a.new()
             elif opt in ("-u", "--update"):
+                l = a.list()
+                if not arg in l:
+                    print ('Your value is not exist or not availabe, check use -l or --list')
+                    sys.exit()
                 a.update(arg)
             elif opt in ("-r", "--release"):
                 a.release(arg)

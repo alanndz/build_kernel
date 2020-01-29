@@ -46,7 +46,7 @@ elif [[ ${R} && ${VERSION} ]]; then
     echo "${VERSION}" > "${CONF}/conf-version"
     git commit -asm "Release: Fusion $(cat "${CONF}/conf-codename") $(cat "${CONF}/conf-version")"
     exit
-else
+elif [[ -z ${R} && -z ${VERSION} ]]; then
     echo "Release: False"
     echo "0" > "${CONF}/conf-release"
     git commit -asm "Switch: Back to CI"

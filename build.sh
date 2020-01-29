@@ -4,19 +4,20 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 CONF="${PWD}/config"
+FOLDER=$(cat "${CONF}/folder")
 
-export RELEASE_STATUS=$(cat "${CONF}/conf-release")
+export RELEASE_STATUS=$(cat "${CONF}/$FOLDER/release")
 export USECLANG=10
 export KERNEL_NAME=Fusion
-export CODENAME=Summer_Dream
-export KERNEL_VERSION="$(cat "${CONF}/conf-version")"
-export TYPE_KERNEL="HMP"
+export CODENAME=$(cat "${CONF}/$FOLDER/codename")
+export KERNEL_VERSION=$(cat "${CONF}/$FOLDER/version")
+export TYPE_KERNEL=$(cat "${CONF}/$FOLDER/type")
 export PHONE="Redmi Note 7"
 export DEVICES="lavender"
 export CONFIG_FILE="lavender_defconfig"
 export JOBS=8
 export SEND_TO_HANA_CI=true
-BRANCH=fusion-eas
+BRANCH=$(cat "${CONF}/$FOLDER/branch")
 
 unset token
 export token=${token_tele}

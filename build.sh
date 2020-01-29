@@ -15,9 +15,8 @@ export PHONE="Redmi Note 7"
 export DEVICES="lavender"
 export CONFIG_FILE="lavender_defconfig"
 export JOBS=8
-export CUSTOM_DTB=0
 export SEND_TO_HANA_CI=true
-BRANCH=new-hmp
+BRANCH=fusion-eas
 
 unset token
 export token=${token_tele}

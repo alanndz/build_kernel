@@ -7,6 +7,13 @@ import sys, getopt, os, subprocess
 
 cwd = os.getcwd()
 config = os.path.join(cwd, 'config')
+status = lambda idk, codename, version, type, branch: '''
+>>> %s :
+
+Codename: %s
+Kernel Version: %s
+Scheduler Kernel: %s
+Branch: %s ''' %(idk, codename, version, type, branch)
 
 def sh(cmd, input="", cwd=cwd, silence = False):
     rst = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, input=input.encode("utf-8"), cwd=cwd)
@@ -17,10 +24,9 @@ def sh(cmd, input="", cwd=cwd, silence = False):
 
 class Main:
     def __init__(a, argv):
-
-        unixOpt = "hnu:r:sl"
+        unixOpt = "hnu:rs:l"
         gnuOpt = ["new", "update=",
-                 "release=", "switch",
+                 "release", "switch=",
                  "list"]
         try:
             opts, args = getopt.getopt(argv, unixOpt, gnuOpt)
@@ -40,13 +46,17 @@ class Main:
                     sys.exit()
                 a.update(arg)
             elif opt in ("-r", "--release"):
-                a.release(arg)
+                a.upRelease()
             elif opt in ("-s", "--switch"):
-                a.switch()
+                if not arg in a.list():
+                    print ('Your value is not exist or not available, check using -l or --list')
+                    sys.exit()
+                open(os.path.join(config, 'folder'), 'w').write(arg)
             elif opt in ("-l", "--list"):
-                print ('List: \n')
-                l = a.list()
-                for i in l: print (i)
+                a.status()
+                # print ('List: \n')
+                # l = a.list()
+                # for i in l: print (i)
 
 
     def new(a):
@@ -65,12 +75,7 @@ class Main:
         open(os.path.join(config, 'folder'), 'w').write(fol)
         a.writeConfig(folder, 'Codename', 'codename')
         a.writeConfig(folder, 'Branch', 'branch')
-        print ('Release Kernel? \n\n[1] False \n[2] True \n')
-        while 1:
-            i = input('Enter a Value: ')
-            i = int(i)-1
-            if i == 0 or i == 1: break
-        open(os.path.join(folder, 'release'), 'w').write(str(i))
+        a.upRelease()
         while 1:
             i = input('Enter Version Kernel: ')
             if i: break
@@ -84,6 +89,14 @@ class Main:
             if os.path.isdir(os.path.join(config, name)):
                 dir.append(name)
         return dir
+
+    def upRelease(a):
+        print ('Release Kernel? \n\n[1] False \n[2] True \n')
+        while 1:
+            i = input('Enter a Value: ')
+            i = int(i)-1
+            if i == 0 or i == 1: break
+        open(os.path.join(config, 'release'), 'w').write(str(i))
 
     def upType(a, folder):
         print ('Choose Scheduler Kernel: \n\n[1] HMP\n[2] EAS\n[3] CFS\n')
@@ -108,6 +121,20 @@ class Main:
         print ('\nOld %s is %s \n' %(list[i], r))
         j = input('Enter new value: ')
         open(os.path.join(dir, list[i]), 'w').write(j)
+
+    def status(a):
+        print ('Global Release: %s' %(open(os.path.join(config, 'release')).read()))
+        print ('Folder will be compile: %s' %(open(os.path.join(config, 'folder')).read()))
+        list = ['codename', 'version', 'type', 'branch']
+        data = []
+        l = a.list()
+        for i in l:
+            for j in list:
+                dir = os.path.join(config, i)
+                r = open(os.path.join(dir, j)).read()
+                data.append(r)
+            print (status(i, data[0], data[1], data[2], data[3]))
+            data = []
 
     def writeConfig(a, dir, ask, conf):
         while 1:

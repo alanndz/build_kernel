@@ -9,7 +9,7 @@ cwd = os.getcwd()
 config = os.path.join(cwd, 'config')
 
 def sh(cmd, input="", cwd=cwd, silence = False):
-    rst = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, input=input.encode("utf-8"), cwd)
+    rst = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, input=input.encode("utf-8"), cwd=cwd)
     assert rst.returncode == 0, rst.stderr.decode("utf-8")
     if silence:
         return rst.stdout.decode("utf-8")
@@ -75,6 +75,14 @@ class Main:
         w = open(os.path.join(folder, 'type'), 'w')
         w.write(['HMP', 'EAS', 'CFS'][i-1])
         w.close()
+
+    def list(a):
+        print ('Available : \n')
+        files = os.listdir(config)
+        for name in files:
+            if os.path.isdir(os.path.join(config, name)):
+                print (name)
+        del (files, name)
 
     def writeConfig(a, dir, ask, conf):
         while 1:

@@ -17,14 +17,14 @@ def sh(cmd, input="", cwd=cwd, silence = False):
 
 class Main:
     def __init__(a, argv):
-        unixOpt = "hnur:sl"
-        gnuOpt = ["new", "update",
+
+        unixOpt = "hnu:r:sl"
+        gnuOpt = ["new", "update=",
                  "release=", "switch",
                  "list"]
         try:
             opts, args = getopt.getopt(argv, unixOpt, gnuOpt)
         except getopt.GetoptError as err:
-            print ('test.py -i <inputfile> -o <outputfile> hhhh')
             print (str(err))
             sys.exit(2)
         for opt, arg in opts:
@@ -34,13 +34,16 @@ class Main:
             elif opt in ("-n", "--new"):
                 a.new()
             elif opt in ("-u", "--update"):
-                a.update()
+                a.update(arg)
             elif opt in ("-r", "--release"):
                 a.release(arg)
             elif opt in ("-s", "--switch"):
                 a.switch()
             elif opt in ("-l", "--list"):
-                a.list()
+                print ('List: \n')
+                l = a.list()
+                for i in l: print (i)
+
 
     def new(a):
         while 1:
@@ -77,12 +80,23 @@ class Main:
         w.close()
 
     def list(a):
-        print ('Available : \n')
         files = os.listdir(config)
+        dir = []
         for name in files:
             if os.path.isdir(os.path.join(config, name)):
-                print (name)
-        del (files, name)
+                dir.append(name)
+        return dir
+
+    def update(a, arg):
+        dir = os.path.join(config, arg)
+        print ('Editing folder %s :\n\n[1]Codename\n[2]Branch\n[3]Kernel Version\n[4]Scheduler Kernel\n' % arg)
+        list = ['codename', 'branch', 'version', 'type']
+        i = input('Enter Choose: ')
+        i = int(i)-1
+        r = open(os.path.join(dir, list[i])).read()
+        print ('\nOld %s is %s \n' %(list[i], r))
+        j = input('Enter new value: ')
+        open(os.path.join(dir, list[i]), 'w').write(j)
 
     def writeConfig(a, dir, ask, conf):
         while 1:

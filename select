@@ -7,6 +7,7 @@ import sys, getopt, os, subprocess
 
 cwd = os.getcwd()
 config = os.path.join(cwd, 'config')
+kernel = 'Fusion'
 status = lambda idk, codename, version, type, branch: '''
 >>> %s :
 
@@ -29,10 +30,12 @@ def rmdir(dir):
 
 class Main:
     def __init__(a, argv):
-        unixOpt = "hnu:rs:ld:"
+        unixOpt = "hnu:rs:ld:c"
         gnuOpt = ["new", "update=",
                  "release", "switch=",
-                 "list", "delete="]
+                 "list", "delete=",
+                 "commit"]
+        a.commit = False
         try:
             opts, args = getopt.getopt(argv, unixOpt, gnuOpt)
         except getopt.GetoptError as err:
@@ -68,6 +71,8 @@ class Main:
                     sys.exit()
                 rmdir(os.path.join(config, arg))
                 print ('Success delete: %s' % arg)
+            elif opt in ("-c", "--commit"):
+                a.commit = True
 
     def new(a):
         while 1:
@@ -91,6 +96,10 @@ class Main:
             if i: break
         open(os.path.join(folder, 'version'), 'w').write(i)
         a.upType(folder)
+        if a.commit:
+            dict = a.getVal(folder)
+            commit = 'NEW: %s: %s: %s %s' %(dict['type'], fol, kernel, dict['codename'])
+            sh('git commit -asm "%s"' %(commit))
 
     def list(a):
         files = os.listdir(config)
@@ -145,6 +154,14 @@ class Main:
                 data.append(r)
             print (status(i, data[0], data[1], data[2], data[3]))
             data = []
+
+    def getVal(a, dir):
+        list = ['codename', 'type', 'version', 'branch']
+        data = {}
+        for i in list:
+            r = open(os.path.join(dir, i)).read()
+            data[i] = r
+        return data
 
     def writeConfig(a, dir, ask, conf):
         while 1:

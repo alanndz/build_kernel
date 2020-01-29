@@ -22,12 +22,17 @@ def sh(cmd, input="", cwd=cwd, silence = False):
         return rst.stdout.decode("utf-8")
     return print (rst.stdout.decode("utf-8"))
 
+def rmdir(dir):
+    for i in os.listdir(dir):
+        os.remove(os.path.join(dir, i))
+    os.rmdir(dir)
+
 class Main:
     def __init__(a, argv):
-        unixOpt = "hnu:rs:l"
+        unixOpt = "hnu:rs:ld:"
         gnuOpt = ["new", "update=",
                  "release", "switch=",
-                 "list"]
+                 "list", "delete="]
         try:
             opts, args = getopt.getopt(argv, unixOpt, gnuOpt)
         except getopt.GetoptError as err:
@@ -57,7 +62,12 @@ class Main:
                 # print ('List: \n')
                 # l = a.list()
                 # for i in l: print (i)
-
+            elif opt in ("-d", "--delete"):
+                if not arg in a.list():
+                    print ('Your value is not exist or not available, check using -l or --list')
+                    sys.exit()
+                rmdir(os.path.join(config, arg))
+                print ('Success delete: %s' % arg)
 
     def new(a):
         while 1:

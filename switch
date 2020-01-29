@@ -15,7 +15,6 @@ while (( ${#} )); do
 done
 
 CONF="${PWD}/config"
-FILE="build.sh"
 
 function info() {
     for i in "${@}"; do
@@ -29,12 +28,37 @@ if [[ ${C} && -z ${CODENAME} ]]; then
          "Enter specific codename!!" \
          "" 
     exit
-else
+elif [[ ${C} && ${CODENAME} ]]; then
     echo "Codename: ${CODENAME}"
     echo "${CODENAME}" > "${CONF}/conf-codename"
 fi
 
+# Branch
+if [[ ${B} && -z ${BRANCH} ]]; then
+    info "" \
+         "Enter specific Branch!!" \
+         ""
+    exit
+elif [[ ${B} && ${BRANCH} ]]; then
+    echo "Branch: ${BRANCH}"
+    echo "${BRANCH}" > "${CONF}/conf-branch"
+fi
+
 #Release
+
+# Status
+if [[ ${S} ]]; then
+    info "" \
+         "Release: $(cat ${CONF}/conf-release)" \
+         "Version: $(cat ${CONF}/conf-version)" \
+         "Type: $(cat ${CONF}/conf-type)" \
+         "Codename: $(cat ${CONF}/conf-codename)" \
+         "Branch: $(cat ${CONF}/conf-branch)"
+    exit
+fi
+
+## Release Write
+## END ##
 if [[ ${R} && -z ${VERSION} ]]; then
     info "" \
         "Enter specific version!!" \
@@ -53,19 +77,5 @@ else
     git commit -asm "Switch: Back to CI"
     exit
 fi
-
-# Status
-if [[ ${S} ]]; then
-    info "" \
-         "Release: $(cat ${CONF}/conf-release)" \
-         "Version: $(cat ${CONF}/conf-version)" \
-         "Type: $(cat ${CONF}/conf-type)" \
-         "Codename: $(cat ${CONF}/conf-codename)" \
-         "Branch: $(cat ${CONF}/conf-branch)"
-    exit
-fi
-
-## Release Write
-## END ##
 
 # git commit -asm "Switch: Build Fusion $(cat "${CONF}/conf-codename")"

@@ -41,7 +41,7 @@ if [[ ${R} && -z ${VERSION} ]]; then
         "example: -r/--release v1.00"
     exit
 fi
-if [[ ${R} && ${VERSION} ]]; then
+if [[ ${R} ]]; then
     echo "Release: True"
     echo "1" > "${CONF}/conf-release"
     echo "${VERSION}" > "${CONF}/conf-version"

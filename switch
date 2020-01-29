@@ -6,15 +6,14 @@
 
 while (( ${#} )); do
     case ${1} in
-        "-s"|"--switch") shift; S=true; SWITCH=${1} ;;
         "-r"|"--release") shift; R=true; VERSION=${1} ;;
-        "-c"|"--check") C=true ;;
-        "-p"|"--push") P=true ;;
+        "-s"|"--status") S=true ;;
+        "-b"|"--branch") shift; B=true; BRANCH=${1} ;;
+        "-c"|"--codename") shift; C=true; CODENAME=${1} ;;
     esac
     shift
 done
 
-CODE=( "quantum" "void" "twilight" "drifter" "kaiserin" "kasumi" "hanami" )
 CONF="${PWD}/config"
 FILE="build.sh"
 
@@ -24,15 +23,13 @@ function info() {
     done
 }
 
-if [[ ${S} && -z ${SWITCH} ]]; then
+if [[ ${C} && -z ${CODENAME} ]]; then
     info "" \
          "Enter specific codename!!" \
-         "" \
-         "Codename already is:"
-    for i in "${CODE[@]}"; do
-        echo "      ${i}"
-    done
+         "" 
     exit
+else
+    echo "${CODENAME}" > "${CONF}/conf-codename"
 fi
 
 if [[ ${R} && -z ${VERSION} ]]; then
@@ -42,13 +39,14 @@ if [[ ${R} && -z ${VERSION} ]]; then
     exit
 fi
 
-if [[ ${C} ]]; then
+if [[ ${S} ]]; then
     info "" \
          "Release: $(cat ${CONF}/conf-release)" \
          "Version: $(cat ${CONF}/conf-version)" \
          "Type: $(cat ${CONF}/conf-type)" \
          "Codename: $(cat ${CONF}/conf-codename)" \
          "Branch: $(cat ${CONF}/conf-branch)"
+    exit
 fi
 
 ## Release Write
@@ -60,47 +58,10 @@ if [[ ${R} ]]; then
 else
     echo "0" > "${CONF}/conf-release"
     git commit -asm "Switch: Back to CI"
+    exit
 fi
 ## END ##
-
-## Write CODENAME, BRANCH, TYPE_KERNEL ##
-if [[ $S && $SWITCH == "quantum" ]]; then
-    echo "Quantum" > "${CONF}/conf-codename"
-    echo "EAS" > "${CONF}/conf-type"
-    echo "${SWITCH}" > "${CONF}/conf-branch"
-
-elif [[ $S && $SWITCH == "void" ]]; then
-    echo "Void-Pie" > "${CONF}/conf-codename"
-    echo "EAS" > "${CONF}/conf-type"
-    echo "${SWITCH}" > "${CONF}/conf-branch"
-
-elif [[ $S && $SWITCH == "twilight" ]]; then
-    echo "Twilight" > "${CONF}/conf-codename"
-    echo "HMP" > "${CONF}/conf-type"
-    echo "${SWITCH}" > "${CONF}/conf-branch"
-
-elif [[ $S && $SWITCH == "drifter" ]]; then
-    echo "Drifter" > "${CONF}/conf-codename"
-    echo "HMP" > "${CONF}/conf-type"
-    echo "${SWITCH}" > "${CONF}/conf-branch"
-
-elif [[ $S && $SWITCH == "kaiserin" ]]; then
-    echo "Kaiserin" > "${CONF}/conf-codename"
-    echo "CFS" > "${CONF}/conf-type"
-    echo "${SWITCH}" > "${CONF}/conf-branch"
-
-elif [[ $S && $SWITCH == "kasumi" ]]; then
-    echo "Kasumi" > "${CONF}/conf-codename"
-    echo "EAS" > "${CONF}/conf-type"
-    echo "${SWITCH}" > "${CONF}/conf-branch"
-
-elif [[ $S && $SWITCH == "hanami" ]]; then
-    echo "Hanami-PureCAF" > "${CONF}/conf-codename"
-    echo "HMP" > "${CONF}/conf-type"
-    echo "${SWITCH}" > "${CONF}/conf-branch"
 
 fi
 
 git commit -asm "Switch: Build Fusion $(cat "${CONF}/conf-codename")"
-
-[[ ${P} ]] && { git push -f; }

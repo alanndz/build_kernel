@@ -99,7 +99,7 @@ class Main:
         if a.commit:
             dict = a.getVal(folder)
             commit = 'NEW: %s: %s: %s %s' %(dict['type'], fol, kernel, dict['codename'])
-            sh('git commit -asm "%s"' %(commit))
+            sh('git add . && git commit -asm "%s"' %(commit))
 
     def list(a):
         files = os.listdir(config)
@@ -140,6 +140,9 @@ class Main:
         print ('\nOld %s is %s \n' %(list[i], r))
         j = input('Enter new value: ')
         open(os.path.join(dir, list[i]), 'w').write(j)
+        if a.commit:
+            commit = 'UPDATE: %s: %s: from %s to %s' %(arg, list[i], r, j)
+            sh('git commit -asm "%s"' %(commit))
 
     def status(a):
         print ('Global Release: %s' %(open(os.path.join(config, 'release')).read()))

@@ -35,7 +35,7 @@ class Main:
                  "release", "switch=",
                  "list", "delete=",
                  "commit"]
-        a.commit = False
+        a.commit = True
         try:
             opts, args = getopt.getopt(argv, unixOpt, gnuOpt)
         except getopt.GetoptError as err:
@@ -65,14 +65,20 @@ class Main:
                 # print ('List: \n')
                 # l = a.list()
                 # for i in l: print (i)
+            elif opt in ("-c", "--commit"):
+                a.commit = False
             elif opt in ("-d", "--delete"):
                 if not arg in a.list():
                     print ('Your value is not exist or not available, check using -l or --list')
                     sys.exit()
                 rmdir(os.path.join(config, arg))
+                a.addCommit('DELETE: %s' %(arg))
                 print ('Success delete: %s' % arg)
-            elif opt in ("-c", "--commit"):
-                a.commit = True
+
+    def addCommit(a, value):
+        if a.commit:
+            print (value)
+            #sh('git add . && git commit -asm "%s"' %(value))
 
     def new(a):
         while 1:
@@ -96,10 +102,10 @@ class Main:
             if i: break
         open(os.path.join(folder, 'version'), 'w').write(i)
         a.upType(folder)
-        if a.commit:
-            dict = a.getVal(folder)
-            commit = 'NEW: %s: %s: %s %s' %(dict['type'], fol, kernel, dict['codename'])
-            sh('git add . && git commit -asm "%s"' %(commit))
+        dict = a.getVal(folder)
+        commit = 'NEW: %s: %s: %s %s' %(dict['type'], fol, kernel, dict['codename'])
+        a.addCommit(commit)
+        del (dict)
 
     def list(a):
         files = os.listdir(config)
@@ -116,6 +122,12 @@ class Main:
             i = int(i)-1
             if i == 0 or i == 1: break
         open(os.path.join(config, 'release'), 'w').write(str(i))
+        if i:
+            r = open(os.path.join(config, 'folder')).read()
+            dict = a.getVal(os.path.join(config, r))
+            commit = 'RELEASE: %s: %s %s %s' %(dict['type'], kernel, dict['codename'], dict['version'])
+            a.addCommit(commit)
+            del (r, dict)
 
     def upType(a, folder):
         print ('Choose Scheduler Kernel: \n\n[1] HMP\n[2] EAS\n[3] CFS\n')
@@ -124,8 +136,10 @@ class Main:
             i = int(i)
             if i == 1 or i == 2 or i == 3: break
         w = open(os.path.join(folder, 'type'), 'w')
-        w.write(['HMP', 'EAS', 'CFS'][i-1])
+        v = ['HMP', 'EAS', 'CFS'][i-1]
+        w.write(v)
         w.close()
+        a.addCommit('UPDATE: %s: Kernel Scheduler: %s' %(folder, v))
 
     def update(a, arg):
         dir = os.path.join(config, arg)
@@ -140,9 +154,8 @@ class Main:
         print ('\nOld %s is %s \n' %(list[i], r))
         j = input('Enter new value: ')
         open(os.path.join(dir, list[i]), 'w').write(j)
-        if a.commit:
-            commit = 'UPDATE: %s: %s: from %s to %s' %(arg, list[i], r, j)
-            sh('git commit -asm "%s"' %(commit))
+        commit = 'UPDATE: %s: %s: from %s to %s' %(arg, list[i], r, j)
+        a.addCommit(commit)
 
     def status(a):
         print ('Global Release: %s' %(open(os.path.join(config, 'release')).read()))

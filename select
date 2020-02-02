@@ -6,7 +6,8 @@
 import sys, getopt, os, subprocess
 
 cwd = os.getcwd()
-config = os.path.join(cwd, 'config')
+config = os.path.join(cwd, 'config') # config/
+which = open(os.path.join(config, 'folder')).read() # config/folder
 kernel = 'Fusion'
 status = lambda idk, codename, version, type, branch: '''
 >>> %s :

@@ -1,2 +1,2 @@
-git commit --allow-empty -am "ci"
+git commit --allow-empty -am "Build CI"
 git push -f

@@ -7,7 +7,7 @@ import sys, getopt, os, subprocess
 
 cwd = os.getcwd()
 config = os.path.join(cwd, 'config') # config/
-which = open(os.path.join(config, 'folder')).read() # config/folder
+which = lambda: open(os.path.join(config, 'folder')).read() # config/folder
 kernel = 'Fusion'
 status = lambda idk, codename, version, type, branch: '''
 >>> %s :
@@ -44,7 +44,7 @@ class Main:
             sys.exit(2)
         for opt, arg in opts:
             if opt == '-h':
-                print ('test.py -i <inputfile> -o <outputfile>')
+                print ('Nothing for now')
                 sys.exit()
             elif opt in ("-n", "--new"):
                 a.new()
@@ -61,11 +61,9 @@ class Main:
                     print ('Your value is not exist or not available, check using -l or --list')
                     sys.exit()
                 open(os.path.join(config, 'folder'), 'w').write(arg)
+                a.addCommit('SWITCH: %s' %(arg))
             elif opt in ("-l", "--list"):
                 a.status()
-                # print ('List: \n')
-                # l = a.list()
-                # for i in l: print (i)
             elif opt in ("-c", "--commit"):
                 a.commit = False
             elif opt in ("-d", "--delete"):
@@ -78,8 +76,8 @@ class Main:
 
     def addCommit(a, value):
         if a.commit:
-            print (value)
-            #sh('git add . && git commit -asm "%s"' %(value))
+            #print (value)
+            sh('git add . && git commit -asm "%s"' %(value))
 
     def new(a):
         while 1:
@@ -124,11 +122,9 @@ class Main:
             if i == 0 or i == 1: break
         open(os.path.join(config, 'release'), 'w').write(str(i))
         if i:
-            r = open(os.path.join(config, 'folder')).read()
-            dict = a.getVal(os.path.join(config, r))
-            commit = 'RELEASE: %s: %s %s %s' %(dict['type'], kernel, dict['codename'], dict['version'])
-            a.addCommit(commit)
-            del (r, dict)
+            a.addCommit('RELEASE: True')
+        else:
+            a.addCommit('RELEASE: False')
 
     def upType(a, folder):
         print ('Choose Scheduler Kernel: \n\n[1] HMP\n[2] EAS\n[3] CFS\n')
@@ -140,7 +136,6 @@ class Main:
         v = ['HMP', 'EAS', 'CFS'][i-1]
         w.write(v)
         w.close()
-        a.addCommit('UPDATE: %s: Kernel Scheduler: %s' %(folder, v))
 
     def update(a, arg):
         dir = os.path.join(config, arg)
@@ -150,6 +145,8 @@ class Main:
         i = int(i)-1
         if i == 3:
             a.upType(dir)
+            dict = a.getVal(dir)
+            a.addCommit('UPDATE: Scheduler: %s: %s' %(arg, dict['type']))
             return
         r = open(os.path.join(dir, list[i])).read()
         print ('\nOld %s is %s \n' %(list[i], r))

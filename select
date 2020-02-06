@@ -55,7 +55,10 @@ class Main:
                     sys.exit()
                 a.update(arg)
             elif opt in ("-r", "--release"):
-                a.upRelease()
+                if a.upRelease():
+                    a.addCommit('RELEASE: True')
+                else:
+                    a.addCommit('RELEASE: False')
             elif opt in ("-s", "--switch"):
                 if not arg in a.list():
                     print ('Your value is not exist or not available, check using -l or --list')
@@ -122,9 +125,9 @@ class Main:
             if i == 0 or i == 1: break
         open(os.path.join(config, 'release'), 'w').write(str(i))
         if i:
-            a.addCommit('RELEASE: True')
+            return True
         else:
-            a.addCommit('RELEASE: False')
+            return False
 
     def upType(a, folder):
         print ('Choose Scheduler Kernel: \n\n[1] HMP\n[2] EAS\n[3] CFS\n')

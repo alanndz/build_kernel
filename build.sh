@@ -31,3 +31,9 @@ wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scri
 
 chmod +x .kernel.sh
 bash ./.kernel.sh
+
+export CODENAME="$(cat "${CONF}/$FOLDER/codename")_CAMERA"
+
+curl https://github.com/MiCode/Xiaomi_Kernel_OpenSource/commit/cf2a90f96348c6a3142d53ca209983da18c72410.patch | git am
+
+bash ./.kernel.sh

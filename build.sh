@@ -30,7 +30,7 @@ cd saus
 wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/fusion.sh
 
 chmod +x .kernel.sh
-bash ./.kernel.sh
+# bash ./.kernel.sh
 
 export CODENAME="$(cat "${CONF}/$FOLDER/codename")_CAMERA"
 

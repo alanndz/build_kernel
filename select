@@ -16,6 +16,20 @@ Codename: %s
 Kernel Version: %s
 Scheduler Kernel: %s
 Branch: %s ''' %(idk, codename, version, type, branch)
+__help__ = '''Usage: select [Command] [Argument]
+
+Commands:
+Simple\tLong\t\tDetail
+-h\t--help\t\tShow this text
+-n\t--new\t\tCreate new
+-u\t--update\tUpdate Codename, Type, and other (need argument)
+-r\t--release\tRelease Kernel or Not
+-s\t--switch\tSwitch to another stuff (need argument)
+-l\t--list\t\tShow list stuff
+-d\t--delete\tDelete stuff (need argument)
+-c\t--commit\tCommit default True, if want false just add this
+
+A command is needed.'''
 
 def sh(cmd, input="", cwd=cwd, silence = False):
     rst = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, input=input.encode("utf-8"), cwd=cwd)
@@ -32,19 +46,22 @@ def rmdir(dir):
 class Main:
     def __init__(a, argv):
         unixOpt = "hnu:rs:ld:c"
-        gnuOpt = ["new", "update=",
+        gnuOpt = ["help", "new", "update=",
                  "release", "switch=",
                  "list", "delete=",
                  "commit"]
         a.commit = True
+        if len(argv) == 0:
+            print (__help__)
+            sys.exit()
         try:
             opts, args = getopt.getopt(argv, unixOpt, gnuOpt)
         except getopt.GetoptError as err:
             print (str(err))
             sys.exit(2)
         for opt, arg in opts:
-            if opt == '-h':
-                print ('Nothing for now')
+            if opt in ("-h", "--help"):
+                print (__help__)
                 sys.exit()
             elif opt in ("-n", "--new"):
                 a.new()

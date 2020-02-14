@@ -30,10 +30,14 @@ cd saus
 wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/fusion.sh
 
 chmod +x .kernel.sh
-# bash ./.kernel.sh
+bash ./.kernel.sh
+
+# Build second kernel for camera patch
 
 export CODENAME="$(cat "${CONF}/$FOLDER/codename")_CAMERA"
+make -C "${PWD}/.ToolBuild/AnyKernel3" clean &>/dev/null
 
+# Patching kernel for new patch
 curl https://github.com/MiCode/Xiaomi_Kernel_OpenSource/commit/cf2a90f96348c6a3142d53ca209983da18c72410.patch | git am
 
 bash ./.kernel.sh

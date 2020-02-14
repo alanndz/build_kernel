@@ -1,0 +1,1098 @@
+From ecf507dde8fcaaf33f011946985bc22699337425 Mon Sep 17 00:00:00 2001
+From: alanndz <alanmahmud0@gmail.com>
+Date: Fri, 22 Nov 2019 09:49:39 +0800
+Subject: [PATCH] drivers: camera_v2: checkout to branch eas-pie
+
+Signed-off-by: alanndz <alanmahmud0@gmail.com>
+---
+ .../platform/msm/camera_v2/common/Makefile    |   2 +-
+ .../platform/msm/camera_v2/fd/msm_fd_dev.c    |   3 +-
+ .../platform/msm/camera_v2/isp/msm_isp.c      |   6 -
+ .../platform/msm/camera_v2/isp/msm_isp.h      |  13 +-
+ .../platform/msm/camera_v2/isp/msm_isp40.c    |   2 +-
+ .../platform/msm/camera_v2/isp/msm_isp47.c    |  15 +-
+ .../msm/camera_v2/isp/msm_isp_axi_util.c      | 236 +++---------------
+ .../msm/camera_v2/isp/msm_isp_stats_util.c    |   2 +-
+ .../platform/msm/camera_v2/isp/msm_isp_util.c |  11 +-
+ .../msm/camera_v2/jpeg_10/msm_jpeg_dev.c      |   3 +-
+ .../msm/camera_v2/jpeg_10/msm_jpeg_hw.c       |  17 +-
+ .../msm/camera_v2/jpeg_10/msm_jpeg_sync.c     |  48 +---
+ .../msm/camera_v2/jpeg_dma/msm_jpeg_dma_dev.c |   1 -
+ drivers/media/platform/msm/camera_v2/msm.c    |   8 +-
+ .../msm/camera_v2/pproc/cpp/msm_cpp.c         |  33 +--
+ .../msm/camera_v2/pproc/cpp/msm_cpp.h         |   3 +-
+ .../msm/camera_v2/sensor/flash/msm_flash.c    |   8 +-
+ .../camera_v2/sensor/io/msm_camera_dt_util.c  |   2 +-
+ .../msm/camera_v2/sensor/msm_sensor_driver.c  |  17 --
+ 19 files changed, 79 insertions(+), 351 deletions(-)
+
+diff --git a/drivers/media/platform/msm/camera_v2/common/Makefile b/drivers/media/platform/msm/camera_v2/common/Makefile
+index e3765fc4c524..74fe58f430e0 100644
+--- a/drivers/media/platform/msm/camera_v2/common/Makefile
++++ b/drivers/media/platform/msm/camera_v2/common/Makefile
+@@ -1,3 +1,3 @@
+ ccflags-y += -Idrivers/media/platform/msm/camera_v2/
+ ccflags-y += -Idrivers/misc/
+-obj-$(CONFIG_MSMB_CAMERA) += msm_camera_io_util.o cam_smmu_api.o cam_hw_ops.o cam_soc_api.o msm_camera_tz_util.o msm_cam_cx_ipeak.o
++obj-$(CONFIG_MSMB_CAMERA) += msm_camera_io_util.o cam_smmu_api.o cam_hw_ops.o cam_soc_api.o msm_camera_tz_util.o
+diff --git a/drivers/media/platform/msm/camera_v2/fd/msm_fd_dev.c b/drivers/media/platform/msm/camera_v2/fd/msm_fd_dev.c
+index 29ecf9168268..8e0a7443f98c 100644
+--- a/drivers/media/platform/msm/camera_v2/fd/msm_fd_dev.c
++++ b/drivers/media/platform/msm/camera_v2/fd/msm_fd_dev.c
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2014-2019, The Linux Foundation. All rights reserved.
++/* Copyright (c) 2014-2018, The Linux Foundation. All rights reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 and
+@@ -1471,7 +1471,6 @@ static struct platform_driver fd_driver = {
+ 		.name = MSM_FD_DRV_NAME,
+ 		.owner = THIS_MODULE,
+ 		.of_match_table = msm_fd_dt_match,
+-		.suppress_bind_attrs = true,
+ 	},
+ };
+ 
+diff --git a/drivers/media/platform/msm/camera_v2/isp/msm_isp.c b/drivers/media/platform/msm/camera_v2/isp/msm_isp.c
+index c0bf239e0a35..fa5aee08c37d 100644
+--- a/drivers/media/platform/msm/camera_v2/isp/msm_isp.c
++++ b/drivers/media/platform/msm/camera_v2/isp/msm_isp.c
+@@ -35,7 +35,6 @@
+ #include "msm_isp44.h"
+ #include "msm_isp40.h"
+ #include "msm_isp32.h"
+-#include "msm_cam_cx_ipeak.h"
+ 
+ static struct msm_sd_req_vb2_q vfe_vb2_ops;
+ static struct msm_isp_buf_mgr vfe_buf_mgr;
+@@ -676,11 +675,6 @@ int vfe_hw_probe(struct platform_device *pdev)
+ 			"qcom,vfe-cx-ipeak", NULL)) {
+ 			vfe_dev->vfe_cx_ipeak = cx_ipeak_register(
+ 				pdev->dev.of_node, "qcom,vfe-cx-ipeak");
+-			if (vfe_dev->vfe_cx_ipeak)
+-				cam_cx_ipeak_register_cx_ipeak(
+-				vfe_dev->vfe_cx_ipeak, &vfe_dev->cx_ipeak_bit);
+-			pr_debug("%s: register cx_ipeak received bit %d\n",
+-				__func__, vfe_dev->cx_ipeak_bit);
+ 		}
+ 	} else {
+ 		vfe_dev->hw_info = (struct msm_vfe_hardware_info *)
+diff --git a/drivers/media/platform/msm/camera_v2/isp/msm_isp.h b/drivers/media/platform/msm/camera_v2/isp/msm_isp.h
+index 6074f85a828f..0c18bfe55842 100644
+--- a/drivers/media/platform/msm/camera_v2/isp/msm_isp.h
++++ b/drivers/media/platform/msm/camera_v2/isp/msm_isp.h
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2013-2019, The Linux Foundation. All rights reserved.
++/* Copyright (c) 2013-2018, The Linux Foundation. All rights reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 and
+@@ -416,12 +416,6 @@ enum msm_isp_comp_irq_types {
+ 
+ #define MSM_VFE_REQUESTQ_SIZE 8
+ 
+-struct msm_isp_pending_buf_info {
+-	uint32_t is_buf_done_pending;
+-	struct msm_isp_buffer *buf;
+-	uint32_t frame_id;
+-};
+-
+ struct msm_vfe_axi_stream {
+ 	uint32_t frame_id;
+ 	enum msm_vfe_axi_state state;
+@@ -478,7 +472,6 @@ struct msm_vfe_axi_stream {
+ 	uint32_t vfe_mask;
+ 	uint32_t composite_irq[MSM_ISP_COMP_IRQ_MAX];
+ 	int lpm_mode;
+-	struct msm_isp_pending_buf_info pending_buf_info;
+ };
+ 
+ struct msm_vfe_axi_composite_info {
+@@ -798,7 +791,6 @@ struct vfe_device {
+ 	enum cam_ahb_clk_vote ahb_vote;
+ 	enum cam_ahb_clk_vote user_requested_ahb_vote;
+ 	struct cx_ipeak_client *vfe_cx_ipeak;
+-	int cx_ipeak_bit;
+ 
+ 	/* Sync variables*/
+ 	struct completion reset_complete;
+@@ -855,9 +847,6 @@ struct vfe_device {
+ 	/* total bandwidth per vfe */
+ 	uint64_t total_bandwidth;
+ 	struct isp_kstate *isp_page;
+-
+-	/* irq info */
+-	uint32_t irq_sof_id;
+ };
+ 
+ struct vfe_parent_device {
+diff --git a/drivers/media/platform/msm/camera_v2/isp/msm_isp40.c b/drivers/media/platform/msm/camera_v2/isp/msm_isp40.c
+index b19ec3141eec..1445943fd275 100644
+--- a/drivers/media/platform/msm/camera_v2/isp/msm_isp40.c
++++ b/drivers/media/platform/msm/camera_v2/isp/msm_isp40.c
+@@ -206,7 +206,7 @@ static int32_t msm_vfe40_init_qos_parms(struct vfe_device *vfe_dev,
+ 	if (rc < 0 || !ds_entries) {
+ 		pr_err("%s: NO D/S entries found\n", __func__);
+ 	} else {
+-		ds_settings = kcalloc(ds_entries, sizeof(uint32_t),
++		ds_settings = kzalloc(sizeof(uint32_t) * ds_entries,
+ 				GFP_KERNEL);
+ 		if (!ds_settings) {
+ 			pr_err("%s:%d No memory\n", __func__, __LINE__);
+diff --git a/drivers/media/platform/msm/camera_v2/isp/msm_isp47.c b/drivers/media/platform/msm/camera_v2/isp/msm_isp47.c
+index cf9e7547d4e2..0daf2d914be5 100644
+--- a/drivers/media/platform/msm/camera_v2/isp/msm_isp47.c
++++ b/drivers/media/platform/msm/camera_v2/isp/msm_isp47.c
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2013-2019, The Linux Foundation. All rights reserved.
++/* Copyright (c) 2013-2018, The Linux Foundation. All rights reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 and
+@@ -25,7 +25,6 @@
+ #include "cam_soc_api.h"
+ #include "msm_isp48.h"
+ #include "linux/iopoll.h"
+-#include "msm_cam_cx_ipeak.h"
+ 
+ #undef CDBG
+ #define CDBG(fmt, args...) pr_debug(fmt, ##args)
+@@ -714,10 +713,8 @@ void msm_isp47_preprocess_camif_irq(struct vfe_device *vfe_dev,
+ {
+ 	if (irq_status0 & BIT(3))
+ 		vfe_dev->axi_data.src_info[VFE_PIX_0].accept_frame = false;
+-	if (irq_status0 & BIT(0)) {
++	if (irq_status0 & BIT(0))
+ 		vfe_dev->axi_data.src_info[VFE_PIX_0].accept_frame = true;
+-		vfe_dev->irq_sof_id++;
+-	}
+ }
+ 
+ void msm_vfe47_reg_update(struct vfe_device *vfe_dev,
+@@ -2683,9 +2680,7 @@ int msm_vfe47_set_clk_rate(struct vfe_device *vfe_dev, long *rate)
+ 		prev_clk_rate <
+ 		vfe_dev->vfe_clk_rates[MSM_VFE_CLK_RATE_NOMINAL]
+ 		[vfe_dev->hw_info->vfe_clk_idx]) {
+-		pr_debug("%s: clk is more than Nominal vfe %d, ipeak bit %d\n",
+-			__func__, vfe_dev->pdev->id, vfe_dev->cx_ipeak_bit);
+-		ret = cam_cx_ipeak_update_vote_cx_ipeak(vfe_dev->cx_ipeak_bit);
++		ret = cx_ipeak_update(vfe_dev->vfe_cx_ipeak, true);
+ 		if (ret) {
+ 			pr_err("%s: cx_ipeak_update failed %d\n",
+ 				__func__, ret);
+@@ -2708,9 +2703,7 @@ int msm_vfe47_set_clk_rate(struct vfe_device *vfe_dev, long *rate)
+ 		prev_clk_rate >=
+ 		vfe_dev->vfe_clk_rates[MSM_VFE_CLK_RATE_NOMINAL]
+ 		[vfe_dev->hw_info->vfe_clk_idx]) {
+-		pr_debug("%s:clk is less than Nominal vfe %d, ipeak bit %d\n",
+-			__func__, vfe_dev->pdev->id, vfe_dev->cx_ipeak_bit);
+-		ret = cam_cx_ipeak_unvote_cx_ipeak(vfe_dev->cx_ipeak_bit);
++		ret = cx_ipeak_update(vfe_dev->vfe_cx_ipeak, false);
+ 		if (ret) {
+ 			pr_err("%s: cx_ipeak_update failed %d\n",
+ 				__func__, ret);
+diff --git a/drivers/media/platform/msm/camera_v2/isp/msm_isp_axi_util.c b/drivers/media/platform/msm/camera_v2/isp/msm_isp_axi_util.c
+index 68760da8b9f4..b1f3db415515 100644
+--- a/drivers/media/platform/msm/camera_v2/isp/msm_isp_axi_util.c
++++ b/drivers/media/platform/msm/camera_v2/isp/msm_isp_axi_util.c
+@@ -1,4 +1,5 @@
+-/* Copyright (c) 2013-2019, The Linux Foundation. All rights reserved.
++/* Copyright (c) 2013-2018, The Linux Foundation. All rights reserved.
++ * Copyright (C) 2019 XiaoMi, Inc.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 and
+@@ -16,11 +17,9 @@
+ #include "msm_isp_stats_util.h"
+ #include "msm_isp_axi_util.h"
+ #include "msm_isp48.h"
+-#include "trace/events/msm_cam.h"
+ 
+ #define HANDLE_TO_IDX(handle) (handle & 0xFF)
+ #define ISP_SOF_DEBUG_COUNT 0
+-#define OTHER_VFE(vfe_id) (vfe_id == ISP_VFE0 ? ISP_VFE1 : ISP_VFE0)
+ 
+ static void msm_isp_reload_ping_pong_offset(
+ 		struct msm_vfe_axi_stream *stream_info);
+@@ -29,13 +28,6 @@ static void __msm_isp_axi_stream_update(
+ 			struct msm_vfe_axi_stream *stream_info,
+ 			struct msm_isp_timestamp *ts);
+ 
+-static int msm_isp_process_done_buf(struct vfe_device *vfe_dev,
+-	struct msm_vfe_axi_stream *stream_info, struct msm_isp_buffer *buf,
+-	struct timeval *time_stamp, uint32_t frame_id);
+-static void msm_isp_free_pending_buffer(
+-	struct vfe_device *vfe_dev,
+-	struct msm_vfe_axi_stream *stream_info,
+-	struct msm_isp_timestamp *ts);
+ static int msm_isp_update_stream_bandwidth(
+ 		struct msm_vfe_axi_stream *stream_info, int enable);
+ 
+@@ -620,9 +612,11 @@ static void msm_isp_update_framedrop_reg(struct msm_vfe_axi_stream *stream_info,
+ 				MSM_VFE_STREAM_STOP_PERIOD;
+ 	}
+ 
+-	if (stream_info->undelivered_request_cnt > 0)
++	if (stream_info->undelivered_request_cnt > 0 &&
++		drop_reconfig != 1)
+ 		stream_info->current_framedrop_period =
+ 			MSM_VFE_STREAM_STOP_PERIOD;
++
+ 	/*
+ 	 * re-configure the period pattern, only if it's not already
+ 	 * set to what we want
+@@ -670,29 +664,12 @@ void msm_isp_process_reg_upd_epoch_irq(struct vfe_device *vfe_dev,
+ 		case MSM_ISP_COMP_IRQ_REG_UPD:
+ 			stream_info->activated_framedrop_period =
+ 				stream_info->requested_framedrop_period;
+-			/* Free Pending Buffers which are backed-up due to
+-			 * delay in RUP from userspace to Avoid pageFault
+-			 */
+-			msm_isp_free_pending_buffer(vfe_dev, stream_info, ts);
+ 			__msm_isp_axi_stream_update(stream_info, ts);
+ 			break;
+ 		case MSM_ISP_COMP_IRQ_EPOCH:
+-			if (stream_info->state == ACTIVE) {
+-				struct vfe_device *temp = NULL;
+-				struct msm_vfe_common_dev_data *c_data;
+-				uint32_t drop_reconfig =
+-					vfe_dev->isp_page->drop_reconfig;
+-				if (stream_info->num_isp > 1 &&
+-					vfe_dev->pdev->id == ISP_VFE0) {
+-					c_data = vfe_dev->common_data;
+-					temp = c_data->dual_vfe_res->vfe_dev[
+-						ISP_VFE1];
+-					drop_reconfig =
+-						temp->isp_page->drop_reconfig;
+-				}
++			if (stream_info->state == ACTIVE)
+ 				msm_isp_update_framedrop_reg(stream_info,
+-					drop_reconfig);
+-			}
++					vfe_dev->isp_page->drop_reconfig);
+ 			break;
+ 		default:
+ 			WARN(1, "Invalid irq %d\n", irq);
+@@ -1063,12 +1040,8 @@ void msm_isp_notify(struct vfe_device *vfe_dev, uint32_t event_type,
+ 			vfe_dev->isp_raw2_debug++;
+ 		}
+ 
+-		ISP_DBG("%s: vfe %d frame_src %d frameid %d\n", __func__,
+-			vfe_dev->pdev->id, frame_src,
+-			vfe_dev->axi_data.src_info[VFE_PIX_0].frame_id);
+-		trace_msm_cam_isp_status_dump("SOFNOTIFY:", vfe_dev->pdev->id,
+-			vfe_dev->axi_data.src_info[VFE_PIX_0].frame_id,
+-			0, 0);
++		ISP_DBG("%s: vfe %d frame_src %d\n", __func__,
++			vfe_dev->pdev->id, frame_src);
+ 
+ 		/*
+ 		 * Cannot support dual_cam and framedrop same time in union.
+@@ -1553,40 +1526,6 @@ static void msm_isp_axi_stream_enable_cfg(
+ 	}
+ }
+ 
+-static void msm_isp_free_pending_buffer(
+-			struct vfe_device *vfe_dev,
+-			struct msm_vfe_axi_stream *stream_info,
+-			struct msm_isp_timestamp *ts)
+-{
+-	struct timeval *time_stamp;
+-	struct msm_isp_buffer *done_buf = NULL;
+-	uint32_t frame_id;
+-	int rc;
+-
+-	if (!stream_info->controllable_output ||
+-		!stream_info->pending_buf_info.is_buf_done_pending)	{
+-		return;
+-	}
+-
+-	if (vfe_dev->vt_enable) {
+-		msm_isp_get_avtimer_ts(ts);
+-		time_stamp = &ts->vt_time;
+-	} else {
+-		time_stamp = &ts->buf_time;
+-	}
+-
+-	done_buf = stream_info->pending_buf_info.buf;
+-	frame_id = stream_info->pending_buf_info.frame_id;
+-	if (done_buf) {
+-		rc = msm_isp_process_done_buf(vfe_dev, stream_info,
+-			done_buf, time_stamp, frame_id);
+-		if (rc == 0) {
+-			stream_info->pending_buf_info.buf = NULL;
+-			stream_info->pending_buf_info.is_buf_done_pending = 0;
+-		}
+-	}
+-}
+-
+ static void __msm_isp_axi_stream_update(
+ 			struct msm_vfe_axi_stream *stream_info,
+ 			struct msm_isp_timestamp *ts)
+@@ -2052,8 +1991,6 @@ static int msm_isp_cfg_ping_pong_address(
+ 
+ 	if (!buf) {
+ 		msm_isp_cfg_stream_scratch(stream_info, pingpong_status);
+-		if (stream_info->controllable_output)
+-			return 1;
+ 		return 0;
+ 	}
+ 
+@@ -2469,7 +2406,6 @@ static void msm_isp_input_enable(struct vfe_device *vfe_dev,
+ 			continue;
+ 		/* activate the input since it is deactivated */
+ 		axi_data->src_info[i].frame_id = 0;
+-		vfe_dev->irq_sof_id = 0;
+ 		if (axi_data->src_info[i].input_mux != EXTERNAL_READ)
+ 			axi_data->src_info[i].active = 1;
+ 		if (i >= VFE_RAW_0 && sync_frame_id_src) {
+@@ -2726,11 +2662,7 @@ int msm_isp_axi_reset(struct vfe_device *vfe_dev,
+ 	struct msm_isp_timestamp timestamp;
+ 	struct msm_vfe_frame_request_queue *queue_req;
+ 	unsigned long flags;
+-	uint32_t pingpong_status;
+ 	int vfe_idx;
+-	uint32_t pingpong_bit = 0;
+-	uint32_t frame_id = 0;
+-	struct timeval *time_stamp;
+ 
+ 	if (!reset_cmd) {
+ 		pr_err("%s: NULL pointer reset cmd %pK\n", __func__, reset_cmd);
+@@ -2739,7 +2671,6 @@ int msm_isp_axi_reset(struct vfe_device *vfe_dev,
+ 	}
+ 
+ 	msm_isp_get_timestamp(&timestamp, vfe_dev);
+-	time_stamp = &timestamp.buf_time;
+ 
+ 	for (i = 0; i < VFE_AXI_SRC_MAX; i++) {
+ 		stream_info = msm_isp_get_stream_common_data(
+@@ -2762,28 +2693,6 @@ int msm_isp_axi_reset(struct vfe_device *vfe_dev,
+ 
+ 		/* set ping pong to scratch before flush */
+ 		spin_lock_irqsave(&stream_info->lock, flags);
+-		frame_id = vfe_dev->axi_data.src_info[VFE_PIX_0].frame_id;
+-		if (stream_info->controllable_output &&
+-			stream_info->undelivered_request_cnt > 0) {
+-			pingpong_status = VFE_PING_FLAG;
+-			pingpong_bit = (~(pingpong_status >>
+-						stream_info->wm[0][0]) & 0x1);
+-			if (stream_info->buf[pingpong_bit] != NULL) {
+-				msm_isp_process_done_buf(vfe_dev, stream_info,
+-						stream_info->buf[pingpong_bit],
+-						time_stamp,
+-						frame_id);
+-			}
+-			pingpong_status = VFE_PONG_FLAG;
+-			pingpong_bit = (~(pingpong_status >>
+-						stream_info->wm[0][0]) & 0x1);
+-			if (stream_info->buf[pingpong_bit] != NULL) {
+-				msm_isp_process_done_buf(vfe_dev, stream_info,
+-						stream_info->buf[pingpong_bit],
+-						time_stamp,
+-						frame_id);
+-			}
+-		}
+ 		msm_isp_cfg_stream_scratch(stream_info,
+ 					VFE_PING_FLAG);
+ 		msm_isp_cfg_stream_scratch(stream_info,
+@@ -2835,7 +2744,6 @@ int msm_isp_axi_reset(struct vfe_device *vfe_dev,
+ 			axi_data->src_info[SRC_TO_INTF(stream_info->
+ 				stream_src)].frame_id =
+ 				reset_cmd->frame_id;
+-			temp_vfe_dev->irq_sof_id = reset_cmd->frame_id;
+ 		}
+ 		msm_isp_reset_burst_count_and_frame_drop(
+ 			vfe_dev, stream_info);
+@@ -3108,12 +3016,6 @@ static void __msm_isp_stop_axi_streams(struct vfe_device *vfe_dev,
+ 		msm_isp_cfg_stream_scratch(stream_info, VFE_PING_FLAG);
+ 		msm_isp_cfg_stream_scratch(stream_info, VFE_PONG_FLAG);
+ 		stream_info->undelivered_request_cnt = 0;
+-		if (stream_info->controllable_output &&
+-			stream_info->pending_buf_info.is_buf_done_pending) {
+-			msm_isp_free_pending_buffer(vfe_dev, stream_info,
+-				&timestamp);
+-			stream_info->pending_buf_info.is_buf_done_pending = 0;
+-		}
+ 		for (k = 0; k < stream_info->num_isp; k++) {
+ 			vfe_dev = stream_info->vfe_dev[k];
+ 			if (stream_info->num_planes > 1)
+@@ -3277,6 +3179,7 @@ static int msm_isp_start_axi_stream(struct vfe_device *vfe_dev_ioctl,
+ 			mutex_unlock(&vfe_dev_ioctl->buf_mgr->lock);
+ 			goto error;
+ 		}
++
+ 		msm_isp_calculate_bandwidth(stream_info);
+ 		for (k = 0; k < stream_info->num_isp; k++) {
+ 			msm_isp_get_stream_wm_mask(stream_info->vfe_dev[k],
+@@ -3292,8 +3195,9 @@ static int msm_isp_start_axi_stream(struct vfe_device *vfe_dev_ioctl,
+ 		msm_isp_reset_framedrop(vfe_dev_ioctl, stream_info);
+ 		rc = msm_isp_init_stream_ping_pong_reg(stream_info);
+ 		if (rc < 0) {
+-			pr_err("%s: No buffer for stream%x\n", __func__,
+-				stream_info->stream_id);
++			pr_err("%s: No buffer for stream%d\n", __func__,
++				HANDLE_TO_IDX(
++				stream_cfg_cmd->stream_handle[i]));
+ 			spin_unlock_irqrestore(&stream_info->lock, flags);
+ 			mutex_unlock(&vfe_dev_ioctl->buf_mgr->lock);
+ 			goto error;
+@@ -3621,26 +3525,20 @@ static int msm_isp_request_frame(struct vfe_device *vfe_dev,
+ 	 */
+ 	if (vfe_dev->axi_data.src_info[frame_src].active &&
+ 		frame_src == VFE_PIX_0 &&
+-		vfe_dev->axi_data.src_info[frame_src].accept_frame == false &&
+-		(stream_info->undelivered_request_cnt <=
+-			MAX_BUFFERS_IN_HW)
+-		) {
+-		pr_debug("%s:%d invalid time to request frame %d try drop_reconfig\n",
++		vfe_dev->axi_data.src_info[frame_src].accept_frame == false) {
++		pr_debug("%s:%d invalid time to request frame %d\n",
+ 			__func__, __LINE__, frame_id);
+ 		vfe_dev->isp_page->drop_reconfig = 1;
+-		return 0;
+ 	} else if ((vfe_dev->axi_data.src_info[frame_src].active) &&
+-			((frame_id ==
+-			vfe_dev->axi_data.src_info[frame_src].frame_id) ||
+-			(frame_id == vfe_dev->irq_sof_id)) &&
++			(frame_id ==
++			vfe_dev->axi_data.src_info[frame_src].frame_id) &&
+ 			(stream_info->undelivered_request_cnt <=
+ 				MAX_BUFFERS_IN_HW)) {
+ 		vfe_dev->isp_page->drop_reconfig = 1;
+-		pr_debug("%s: vfe_%d request_frame %d cur frame id %d pix %d try drop_reconfig\n",
++		pr_debug("%s: vfe_%d request_frame %d cur frame id %d pix %d\n",
+ 			__func__, vfe_dev->pdev->id, frame_id,
+ 			vfe_dev->axi_data.src_info[VFE_PIX_0].frame_id,
+ 			vfe_dev->axi_data.src_info[VFE_PIX_0].active);
+-		return 0;
+ 	} else if ((vfe_dev->axi_data.src_info[frame_src].active && (frame_id !=
+ 		vfe_dev->axi_data.src_info[frame_src].frame_id + vfe_dev->
+ 		axi_data.src_info[frame_src].sof_counter_step)) ||
+@@ -3661,18 +3559,19 @@ static int msm_isp_request_frame(struct vfe_device *vfe_dev,
+ 	if ((frame_src == VFE_PIX_0) && !stream_info->undelivered_request_cnt &&
+ 		MSM_VFE_STREAM_STOP_PERIOD !=
+ 		stream_info->activated_framedrop_period) {
+-		/* wm is reloaded if undelivered_request_cnt is zero.
+-		 * As per the hw behavior wm should be disabled or skip writing
+-		 * before reload happens other wise wm could start writing from
+-		 * middle of the frame and could result in image corruption.
+-		 * instead of dropping frame in this error scenario use
+-		 * drop_reconfig flag to process the request in next sof.
+-		 */
+ 		pr_debug("%s:%d vfe %d frame_id %d prev_pattern %x stream_id %x\n",
+ 			__func__, __LINE__, vfe_dev->pdev->id, frame_id,
+ 			stream_info->activated_framedrop_period,
+ 			stream_info->stream_id);
+-		vfe_dev->isp_page->drop_reconfig = 1;
++
++		rc = msm_isp_return_empty_buffer(vfe_dev, stream_info,
++			user_stream_id, frame_id, buf_index, frame_src);
++		if (rc < 0)
++			pr_err("%s:%d failed: return_empty_buffer src %d\n",
++				__func__, __LINE__, frame_src);
++		stream_info->current_framedrop_period =
++			MSM_VFE_STREAM_STOP_PERIOD;
++		msm_isp_cfg_framedrop_reg(stream_info);
+ 		return 0;
+ 	}
+ 
+@@ -3743,16 +3642,11 @@ static int msm_isp_request_frame(struct vfe_device *vfe_dev,
+ 		if (rc) {
+ 			spin_unlock_irqrestore(&stream_info->lock, flags);
+ 			stream_info->undelivered_request_cnt--;
+-			queue_req = list_first_entry_or_null(
+-				&stream_info->request_q,
+-				struct msm_vfe_frame_request_queue, list);
+-			if (queue_req) {
+-				queue_req->cmd_used = 0;
+-				list_del(&queue_req->list);
+-				stream_info->request_q_cnt--;
+-			}
+-			pr_err_ratelimited("%s:%d fail to cfg HAL buffer stream %x\n",
+-				__func__, __LINE__, stream_info->stream_id);
++			pr_err_ratelimited("%s:%d fail to cfg HAL buffer\n",
++				__func__, __LINE__);
++			queue_req->cmd_used = 0;
++			list_del(&queue_req->list);
++			stream_info->request_q_cnt--;
+ 			return rc;
+ 		}
+ 
+@@ -3789,16 +3683,11 @@ static int msm_isp_request_frame(struct vfe_device *vfe_dev,
+ 			stream_info->undelivered_request_cnt--;
+ 			spin_unlock_irqrestore(&stream_info->lock,
+ 						flags);
+-			queue_req = list_first_entry_or_null(
+-				&stream_info->request_q,
+-				struct msm_vfe_frame_request_queue, list);
+-			if (queue_req) {
+-				queue_req->cmd_used = 0;
+-				list_del(&queue_req->list);
+-				stream_info->request_q_cnt--;
+-			}
+ 			pr_err_ratelimited("%s:%d fail to cfg HAL buffer\n",
+ 				__func__, __LINE__);
++			queue_req->cmd_used = 0;
++			list_del(&queue_req->list);
++			stream_info->request_q_cnt--;
+ 			return rc;
+ 		}
+ 	} else {
+@@ -4284,8 +4173,6 @@ void msm_isp_process_axi_irq_stream(struct vfe_device *vfe_dev,
+ 	struct timeval *time_stamp;
+ 	uint32_t frame_id, buf_index = -1;
+ 	int vfe_idx;
+-	struct vfe_device *temp_dev;
+-	int other_vfe_id;
+ 
+ 	if (!ts) {
+ 		pr_err("%s: Error! Invalid argument\n", __func__);
+@@ -4383,45 +4270,15 @@ void msm_isp_process_axi_irq_stream(struct vfe_device *vfe_dev,
+ 			ISP_DBG("%s: Error configuring ping_pong\n",
+ 				__func__);
+ 	} else if (done_buf && (done_buf->is_drop_reconfig != 1)) {
+-		int32_t frame_id_diff;
+-		/* irq_sof should be always >= tasklet SOF id
+-		 * For dual camera usecase irq_sof could be behind
+-		 * as software frameid sync logic epoch event could
+-		 * update slave frame id so update if irqsof < tasklet sof
+-		 */
+-		if (vfe_dev->irq_sof_id < frame_id)
+-			vfe_dev->irq_sof_id = frame_id;
+-
+-		frame_id_diff = vfe_dev->irq_sof_id - frame_id;
+-		if (stream_info->controllable_output && frame_id_diff > 1) {
+-			pr_err_ratelimited("%s: scheduling problem do recovery irq_sof_id %d frame_id %d\n",
+-				__func__, vfe_dev->irq_sof_id, frame_id);
+-			/* scheduling problem need to do recovery */
+-			stream_info->buf[pingpong_bit] = done_buf;
+-			spin_unlock_irqrestore(&stream_info->lock, flags);
+-			msm_isp_halt_send_error(vfe_dev,
+-				ISP_EVENT_PING_PONG_MISMATCH);
+-			return;
+-		}
+ 		msm_isp_cfg_stream_scratch(stream_info, pingpong_status);
+ 	}
++
+ 	if (!done_buf) {
+ 		if (stream_info->buf_divert) {
+ 			vfe_dev->error_info.stream_framedrop_count[
+ 				stream_info->bufq_handle[
+ 				VFE_BUF_QUEUE_DEFAULT] & 0xFF]++;
+ 			vfe_dev->error_info.framedrop_flag = 1;
+-			if (vfe_dev->is_split) {
+-				other_vfe_id = OTHER_VFE(vfe_dev->pdev->id);
+-				temp_dev =
+-				vfe_dev->common_data->dual_vfe_res->vfe_dev[
+-					other_vfe_id];
+-				temp_dev->error_info.stream_framedrop_count[
+-				stream_info->bufq_handle[
+-				VFE_BUF_QUEUE_DEFAULT] & 0xFF]++;
+-				temp_dev->error_info.framedrop_flag = 1;
+-			}
+-
+ 		}
+ 		spin_unlock_irqrestore(&stream_info->lock, flags);
+ 		return;
+@@ -4464,28 +4321,11 @@ void msm_isp_process_axi_irq_stream(struct vfe_device *vfe_dev,
+ 	* then dont issue buf-done for current buffer
+ 	*/
+ 		done_buf->is_drop_reconfig = 0;
+-		if (!stream_info->buf[pingpong_bit]) {
+-			/* samebuffer is not re-programeed so write scratch */
+-			msm_isp_cfg_stream_scratch(stream_info,
+-				pingpong_status);
+-		}
+ 		spin_unlock_irqrestore(&stream_info->lock, flags);
+ 	} else {
+-		/* If there is no regupdate from userspace then dont
+-		 * free buffer immediately, delegate it to RegUpdateAck
+-		 */
+-		if (stream_info->controllable_output &&
+-			!(vfe_dev->reg_update_requested &
+-				BIT((uint32_t)VFE_PIX_0))) {
+-			stream_info->pending_buf_info.is_buf_done_pending = 1;
+-			stream_info->pending_buf_info.buf = done_buf;
+-			stream_info->pending_buf_info.frame_id = frame_id;
+-		}
+ 		spin_unlock_irqrestore(&stream_info->lock, flags);
+-		if (stream_info->pending_buf_info.is_buf_done_pending != 1) {
+-			msm_isp_process_done_buf(vfe_dev, stream_info,
+-				done_buf, time_stamp, frame_id);
+-		}
++		msm_isp_process_done_buf(vfe_dev, stream_info,
++			done_buf, time_stamp, frame_id);
+ 	}
+ }
+ 
+diff --git a/drivers/media/platform/msm/camera_v2/isp/msm_isp_stats_util.c b/drivers/media/platform/msm/camera_v2/isp/msm_isp_stats_util.c
+index 3e8220005f77..4705a12bbcd1 100644
+--- a/drivers/media/platform/msm/camera_v2/isp/msm_isp_stats_util.c
++++ b/drivers/media/platform/msm/camera_v2/isp/msm_isp_stats_util.c
+@@ -548,10 +548,10 @@ int msm_isp_release_stats_stream(struct vfe_device *vfe_dev, void *arg)
+ 		stream_info->buffer_offset[i] = stream_info->buffer_offset[k];
+ 	}
+ 
++	stream_info->num_isp--;
+ 	stream_info->vfe_dev[stream_info->num_isp] = 0;
+ 	stream_info->stream_handle[stream_info->num_isp] = 0;
+ 	stream_info->buffer_offset[stream_info->num_isp] = 0;
+-	stream_info->num_isp--;
+ 	stream_info->vfe_mask &= ~(1 << vfe_dev->pdev->id);
+ 	if (stream_info->num_isp == 0)
+ 		stream_info->state = STATS_AVAILABLE;
+diff --git a/drivers/media/platform/msm/camera_v2/isp/msm_isp_util.c b/drivers/media/platform/msm/camera_v2/isp/msm_isp_util.c
+index 54ca0dd57819..684b331d9ac4 100644
+--- a/drivers/media/platform/msm/camera_v2/isp/msm_isp_util.c
++++ b/drivers/media/platform/msm/camera_v2/isp/msm_isp_util.c
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2013-2019, The Linux Foundation. All rights reserved.
++/* Copyright (c) 2013-2018, The Linux Foundation. All rights reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 and
+@@ -2090,10 +2090,6 @@ static void msm_isp_enqueue_tasklet_cmd(struct vfe_device *vfe_dev,
+ 	} else {
+ 		atomic_add(1, &vfe_dev->irq_cnt);
+ 	}
+-	atomic_add(1, &vfe_dev->irq_cnt);
+-	trace_msm_cam_isp_status_dump("VFE_IRQ:", vfe_dev->pdev->id,
+-		vfe_dev->axi_data.src_info[VFE_PIX_0].frame_id,
+-		irq_status0, irq_status1);
+ 	queue_cmd->vfeInterruptStatus0 = irq_status0;
+ 	queue_cmd->vfeInterruptStatus1 = irq_status1;
+ 	queue_cmd->vfe_pingpong_status = ping_pong_status;
+@@ -2193,9 +2189,6 @@ void msm_isp_do_tasklet(unsigned long data)
+ 		atomic_sub(1, &vfe_dev->irq_cnt);
+ 		msm_isp_prepare_tasklet_debug_info(vfe_dev,
+ 			irq_status0, irq_status1, ts);
+-		trace_msm_cam_isp_status_dump("VFE_TASKLET:", vfe_dev->pdev->id,
+-			vfe_dev->axi_data.src_info[VFE_PIX_0].frame_id,
+-			irq_status0, irq_status1);
+ 		irq_ops = &vfe_dev->hw_info->vfe_ops.irq_ops;
+ 		irq_ops->process_reset_irq(vfe_dev,
+ 			irq_status0, irq_status1);
+@@ -2298,7 +2291,7 @@ int msm_isp_open_node(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
+ 	vfe_dev->isp_raw0_debug = 0;
+ 	vfe_dev->isp_raw1_debug = 0;
+ 	vfe_dev->isp_raw2_debug = 0;
+-	vfe_dev->irq_sof_id = 0;
++
+ 	if (vfe_dev->hw_info->vfe_ops.core_ops.init_hw(vfe_dev) < 0) {
+ 		pr_err("%s: init hardware failed\n", __func__);
+ 		vfe_dev->vfe_open_cnt--;
+diff --git a/drivers/media/platform/msm/camera_v2/jpeg_10/msm_jpeg_dev.c b/drivers/media/platform/msm/camera_v2/jpeg_10/msm_jpeg_dev.c
+index 0abb81e998f6..5ef08cbe9aee 100644
+--- a/drivers/media/platform/msm/camera_v2/jpeg_10/msm_jpeg_dev.c
++++ b/drivers/media/platform/msm/camera_v2/jpeg_10/msm_jpeg_dev.c
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2012-2019, The Linux Foundation. All rights reserved.
++/* Copyright (c) 2012-2018, The Linux Foundation. All rights reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 and
+@@ -323,7 +323,6 @@ static struct platform_driver msm_jpeg_driver = {
+ 		.name = "msm_jpeg",
+ 		.owner = THIS_MODULE,
+ 		.of_match_table = msm_jpeg_dt_match,
+-		.suppress_bind_attrs = true,
+ 	},
+ };
+ 
+diff --git a/drivers/media/platform/msm/camera_v2/jpeg_10/msm_jpeg_hw.c b/drivers/media/platform/msm/camera_v2/jpeg_10/msm_jpeg_hw.c
+index cd5946092c20..821833d53905 100644
+--- a/drivers/media/platform/msm/camera_v2/jpeg_10/msm_jpeg_hw.c
++++ b/drivers/media/platform/msm/camera_v2/jpeg_10/msm_jpeg_hw.c
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2012-2017,2019 The Linux Foundation. All rights reserved.
++/* Copyright (c) 2012-2017, The Linux Foundation. All rights reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 and
+@@ -903,7 +903,7 @@ int msm_jpeg_hw_exec_cmds(struct msm_jpeg_hw_cmd *hw_cmd_p, uint32_t m_cmds,
+ 
+ void msm_jpeg_io_dump(void *base, int size)
+ {
+-	char line_str[140];
++	char line_str[128];
+ 	void __iomem *addr = (void __iomem *)base;
+ 	int i;
+ 	u32 *p = (u32 *) addr;
+@@ -914,10 +914,10 @@ void msm_jpeg_io_dump(void *base, int size)
+ 	u32 data;
+ 	JPEG_DBG_HIGH("%s:%d] %pK %d", __func__, __LINE__, addr, size);
+ 	line_str[0] = '\0';
+-	for (i = 0; i < size; i = i+4) {
++	for (i = 0; i < size/4; i++) {
+ 		if (i % 4 == 0) {
+ 			used = snprintf(line_str + offset,
+-				sizeof_line_str - offset, "%pK", p+i);
++				sizeof_line_str - offset, "%pK ", p);
+ 			if ((used < min_range) ||
+ 				(offset + used >= sizeof_line_str)) {
+ 				JPEG_PR_ERR("%s\n", line_str);
+@@ -927,9 +927,9 @@ void msm_jpeg_io_dump(void *base, int size)
+ 				offset += used;
+ 			}
+ 		}
+-		data = msm_camera_io_r((void __iomem *) (p + i));
++		data = msm_camera_io_r(p++);
+ 		used = snprintf(line_str + offset,
+-			sizeof_line_str - offset, " - %08x ", data);
++			sizeof_line_str - offset, "%08x ", data);
+ 		if ((used < min_range) ||
+ 			(offset + used >= sizeof_line_str)) {
+ 			JPEG_PR_ERR("%s\n", line_str);
+@@ -938,6 +938,11 @@ void msm_jpeg_io_dump(void *base, int size)
+ 		} else {
+ 			offset += used;
+ 		}
++		if ((i + 1) % 4 == 0) {
++			JPEG_DBG_HIGH("%s\n", line_str);
++			line_str[0] = '\0';
++			offset = 0;
++		}
+ 	}
+ 	if (line_str[0] != '\0')
+ 		JPEG_DBG_HIGH("%s\n", line_str);
+diff --git a/drivers/media/platform/msm/camera_v2/jpeg_10/msm_jpeg_sync.c b/drivers/media/platform/msm/camera_v2/jpeg_10/msm_jpeg_sync.c
+index 7e4d9dfb6612..d27f56a9ad65 100644
+--- a/drivers/media/platform/msm/camera_v2/jpeg_10/msm_jpeg_sync.c
++++ b/drivers/media/platform/msm/camera_v2/jpeg_10/msm_jpeg_sync.c
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2012-2016, 2019, The Linux Foundation. All rights reserved.
++/* Copyright (c) 2012-2016, The Linux Foundation. All rights reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 and
+@@ -1522,46 +1522,6 @@ long __msm_jpeg_ioctl(struct msm_jpeg_device *pgmn_dev,
+ 	return rc;
+ }
+ 
+-static void msm_jpeg_iommu_fault_handler (struct iommu_domain *domain,
+-	struct device *dev, unsigned long iova, int flags, void *token)
+-{
+-	struct msm_jpeg_device *pgmn_dev;
+-
+-	if (token) {
+-		pgmn_dev = token;
+-		JPEG_PR_ERR("%s: core type %d addr 0x%lx\n",
+-			__func__, pgmn_dev->core_type, iova);
+-		JPEG_PR_ERR("%s: FE ion_fd %d y_addr 0x%x y_len %d\n",
+-			__func__,
+-			pgmn_dev->fe_pingpong_buf.buf[1].ion_fd,
+-			pgmn_dev->fe_pingpong_buf.buf[1].y_buffer_addr,
+-			pgmn_dev->fe_pingpong_buf.buf[1].y_len);
+-		JPEG_PR_ERR("%s: FE cbcr_addr %x cbcr_len %d\n",
+-			__func__,
+-			pgmn_dev->fe_pingpong_buf.buf[1].cbcr_buffer_addr,
+-			pgmn_dev->fe_pingpong_buf.buf[1].cbcr_len);
+-		JPEG_PR_ERR("%s: FE pln2_addr %x pln2_len %d frame_len %d\n",
+-			__func__,
+-			pgmn_dev->fe_pingpong_buf.buf[1].pln2_addr,
+-			pgmn_dev->fe_pingpong_buf.buf[1].pln2_len,
+-			pgmn_dev->fe_pingpong_buf.buf[1].framedone_len);
+-		JPEG_PR_ERR("%s: WE ion_fd %d y_addr 0x%x y_len %d\n",
+-			__func__,
+-			pgmn_dev->we_pingpong_buf.buf[0].ion_fd,
+-			pgmn_dev->we_pingpong_buf.buf[0].y_buffer_addr,
+-			pgmn_dev->we_pingpong_buf.buf[0].y_len);
+-		JPEG_PR_ERR("%s: WE  cbcr_addr %x cbcr_len %d\n",
+-			__func__,
+-			pgmn_dev->we_pingpong_buf.buf[0].cbcr_buffer_addr,
+-			pgmn_dev->we_pingpong_buf.buf[0].cbcr_len);
+-		JPEG_PR_ERR("%s: WE pln2_addr %x pln2_len %d frame_len %d\n",
+-			__func__,
+-			pgmn_dev->we_pingpong_buf.buf[0].pln2_addr,
+-			pgmn_dev->we_pingpong_buf.buf[0].pln2_len,
+-			pgmn_dev->we_pingpong_buf.buf[0].framedone_len);
+-	}
+-}
+-
+ int __msm_jpeg_init(struct msm_jpeg_device *pgmn_dev)
+ {
+ 	int rc = 0;
+@@ -1595,12 +1555,6 @@ int __msm_jpeg_init(struct msm_jpeg_device *pgmn_dev)
+ 		goto err_smmu;
+ 	}
+ 
+-	cam_smmu_reg_client_page_fault_handler(
+-			pgmn_dev->iommu_hdl,
+-			msm_jpeg_iommu_fault_handler,
+-			NULL,
+-			pgmn_dev);
+-
+ 	/* setup all the resources for the jpeg driver */
+ 	rc = msm_jpeg_platform_setup(pgmn_dev);
+ 	if (rc < 0) {
+diff --git a/drivers/media/platform/msm/camera_v2/jpeg_dma/msm_jpeg_dma_dev.c b/drivers/media/platform/msm/camera_v2/jpeg_dma/msm_jpeg_dma_dev.c
+index c847d5210735..0d994a950acd 100644
+--- a/drivers/media/platform/msm/camera_v2/jpeg_dma/msm_jpeg_dma_dev.c
++++ b/drivers/media/platform/msm/camera_v2/jpeg_dma/msm_jpeg_dma_dev.c
+@@ -1493,7 +1493,6 @@ static struct platform_driver jpegdma_driver = {
+ 		.name = MSM_JPEGDMA_DRV_NAME,
+ 		.owner = THIS_MODULE,
+ 		.of_match_table = msm_jpegdma_dt_match,
+-		.suppress_bind_attrs = true,
+ 	},
+ };
+ 
+diff --git a/drivers/media/platform/msm/camera_v2/msm.c b/drivers/media/platform/msm/camera_v2/msm.c
+index bf3656f0a4d6..6bd4d35f632e 100644
+--- a/drivers/media/platform/msm/camera_v2/msm.c
++++ b/drivers/media/platform/msm/camera_v2/msm.c
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2012-2018, The Linux Foundation. All rights reserved.
++/* Copyright (c) 2012-2017, The Linux Foundation. All rights reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 and
+@@ -37,7 +37,6 @@ static struct list_head    ordered_sd_list;
+ static struct mutex        ordered_sd_mtx;
+ static struct mutex        v4l2_event_mtx;
+ 
+-static atomic_t qos_add_request_done = ATOMIC_INIT(0);
+ static struct pm_qos_request msm_v4l2_pm_qos_request;
+ 
+ static struct msm_queue_head *msm_session_q;
+@@ -219,11 +218,9 @@ static inline int __msm_queue_find_command_ack_q(void *d1, void *d2)
+ 	return (ack->stream_id == *(unsigned int *)d2) ? 1 : 0;
+ }
+ 
+-static inline void msm_pm_qos_add_request(void)
++static void msm_pm_qos_add_request(void)
+ {
+ 	pr_info("%s: add request", __func__);
+-	if (atomic_cmpxchg(&qos_add_request_done, 0, 1))
+-		return;
+ 	pm_qos_add_request(&msm_v4l2_pm_qos_request, PM_QOS_CPU_DMA_LATENCY,
+ 	PM_QOS_DEFAULT_VALUE);
+ }
+@@ -237,7 +234,6 @@ static void msm_pm_qos_remove_request(void)
+ void msm_pm_qos_update_request(int val)
+ {
+ 	pr_info("%s: update request %d", __func__, val);
+-	msm_pm_qos_add_request();
+ 	pm_qos_update_request(&msm_v4l2_pm_qos_request, val);
+ }
+ 
+diff --git a/drivers/media/platform/msm/camera_v2/pproc/cpp/msm_cpp.c b/drivers/media/platform/msm/camera_v2/pproc/cpp/msm_cpp.c
+index d75af08846cd..4b5671cd9c28 100644
+--- a/drivers/media/platform/msm/camera_v2/pproc/cpp/msm_cpp.c
++++ b/drivers/media/platform/msm/camera_v2/pproc/cpp/msm_cpp.c
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2013-2019, The Linux Foundation. All rights reserved.
++/* Copyright (c) 2013-2018, The Linux Foundation. All rights reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 and
+@@ -36,7 +36,6 @@
+ #include "msm_camera_io_util.h"
+ #include <linux/debugfs.h>
+ #include "cam_smmu_api.h"
+-#include "msm_cam_cx_ipeak.h"
+ 
+ #define MSM_CPP_DRV_NAME "msm_cpp"
+ 
+@@ -1461,9 +1460,8 @@ static int cpp_open_node(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
+ 		VBIF_CLIENT_CPP, cpp_vbif_error_handler);
+ 
+ 	if (cpp_dev->cpp_open_cnt == 1) {
+-		rc = cpp_init_mem(cpp_dev);
++		rc = cpp_init_hardware(cpp_dev);
+ 		if (rc < 0) {
+-			pr_err("Error: init memory fail\n");
+ 			cpp_dev->cpp_open_cnt--;
+ 			cpp_dev->cpp_subscribe_list[i].active = 0;
+ 			cpp_dev->cpp_subscribe_list[i].vfh = NULL;
+@@ -1471,14 +1469,16 @@ static int cpp_open_node(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
+ 			return rc;
+ 		}
+ 
+-		rc = cpp_init_hardware(cpp_dev);
++		rc = cpp_init_mem(cpp_dev);
+ 		if (rc < 0) {
++			pr_err("Error: init memory fail\n");
+ 			cpp_dev->cpp_open_cnt--;
+ 			cpp_dev->cpp_subscribe_list[i].active = 0;
+ 			cpp_dev->cpp_subscribe_list[i].vfh = NULL;
+ 			mutex_unlock(&cpp_dev->mutex);
+ 			return rc;
+ 		}
++
+ 		cpp_dev->state = CPP_STATE_IDLE;
+ 
+ 		CPP_DBG("Invoking msm_ion_client_create()\n");
+@@ -1537,9 +1537,7 @@ static int cpp_close_node(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
+ 	}
+ 
+ 	if (cpp_dev->turbo_vote == 1) {
+-		pr_debug("%s:cx_ipeak_update unvote. ipeak bit %d\n",
+-			__func__, cpp_dev->cx_ipeak_bit);
+-		rc = cam_cx_ipeak_unvote_cx_ipeak(cpp_dev->cx_ipeak_bit);
++		rc = cx_ipeak_update(cpp_dev->cpp_cx_ipeak, false);
+ 			if (rc)
+ 				pr_err("cx_ipeak_update failed");
+ 			else
+@@ -1578,7 +1576,6 @@ static int cpp_close_node(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
+ 			msm_camera_io_r(cpp_dev->cpp_hw_base + 0x88));
+ 		pr_debug("DEBUG_R1: 0x%x\n",
+ 			msm_camera_io_r(cpp_dev->cpp_hw_base + 0x8C));
+-
+ 		msm_camera_io_w(0x0, cpp_dev->base + MSM_CPP_MICRO_CLKEN_CTL);
+ 		msm_cpp_clear_timer(cpp_dev);
+ 		cpp_release_hardware(cpp_dev);
+@@ -3112,9 +3109,7 @@ unsigned long cpp_cx_ipeak_update(struct cpp_device *cpp_dev,
+ 	if ((clock >= cpp_dev->hw_info.freq_tbl
+ 		[(cpp_dev->hw_info.freq_tbl_count) - 1]) &&
+ 		(cpp_dev->turbo_vote == 0)) {
+-		pr_debug("%s: clk is more than Nominal cpp, ipeak bit %d\n",
+-			__func__, cpp_dev->cx_ipeak_bit);
+-		ret = cam_cx_ipeak_update_vote_cx_ipeak(cpp_dev->cx_ipeak_bit);
++		ret = cx_ipeak_update(cpp_dev->cpp_cx_ipeak, true);
+ 		if (ret) {
+ 			pr_err("cx_ipeak voting failed setting clock below turbo");
+ 			clock = cpp_dev->hw_info.freq_tbl
+@@ -3127,10 +3122,7 @@ unsigned long cpp_cx_ipeak_update(struct cpp_device *cpp_dev,
+ 		[(cpp_dev->hw_info.freq_tbl_count) - 1]) {
+ 		clock_rate = msm_cpp_set_core_clk(cpp_dev, clock, idx);
+ 		if (cpp_dev->turbo_vote == 1) {
+-			pr_debug("%s:clk is less than Nominal, ipeak bit %d\n",
+-				__func__, cpp_dev->cx_ipeak_bit);
+-			ret = cam_cx_ipeak_unvote_cx_ipeak(
+-				cpp_dev->cx_ipeak_bit);
++			ret = cx_ipeak_update(cpp_dev->cpp_cx_ipeak, false);
+ 			if (ret)
+ 				pr_err("cx_ipeak unvoting failed");
+ 			else
+@@ -4613,12 +4605,8 @@ static int cpp_probe(struct platform_device *pdev)
+ 	if (of_find_property(pdev->dev.of_node, "qcom,cpp-cx-ipeak", NULL)) {
+ 		cpp_dev->cpp_cx_ipeak = cx_ipeak_register(
+ 			pdev->dev.of_node, "qcom,cpp-cx-ipeak");
+-		if (cpp_dev->cpp_cx_ipeak) {
+-			cam_cx_ipeak_register_cx_ipeak(cpp_dev->cpp_cx_ipeak,
+-				&cpp_dev->cx_ipeak_bit);
+-			pr_err("%s register cx_ipeak received bit %d\n",
+-				__func__, cpp_dev->cx_ipeak_bit);
+-		}
++		if (cpp_dev->cpp_cx_ipeak)
++			CPP_DBG("Cx ipeak Registration Successful ");
+ 		else
+ 			pr_err("Cx ipeak Registration Unsuccessful");
+ 	}
+@@ -4804,7 +4792,6 @@ static struct platform_driver cpp_driver = {
+ 		.name = MSM_CPP_DRV_NAME,
+ 		.owner = THIS_MODULE,
+ 		.of_match_table = msm_cpp_dt_match,
+-		.suppress_bind_attrs = true,
+ 	},
+ };
+ 
+diff --git a/drivers/media/platform/msm/camera_v2/pproc/cpp/msm_cpp.h b/drivers/media/platform/msm/camera_v2/pproc/cpp/msm_cpp.h
+index 0f5d6759acd3..f2c544785f46 100644
+--- a/drivers/media/platform/msm/camera_v2/pproc/cpp/msm_cpp.h
++++ b/drivers/media/platform/msm/camera_v2/pproc/cpp/msm_cpp.h
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2013-2017, 2019 The Linux Foundation. All rights reserved.
++/* Copyright (c) 2013-2017, The Linux Foundation. All rights reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 and
+@@ -293,7 +293,6 @@ struct cpp_device {
+ 	struct msm_cpp_vbif_data *vbif_data;
+ 	bool turbo_vote;
+ 	struct cx_ipeak_client *cpp_cx_ipeak;
+-	int cx_ipeak_bit;
+ 	enum cpp_iommu_fault_state fault_status;
+ };
+ 
+diff --git a/drivers/media/platform/msm/camera_v2/sensor/flash/msm_flash.c b/drivers/media/platform/msm/camera_v2/sensor/flash/msm_flash.c
+index d0de28f2f3b5..adb859a60596 100644
+--- a/drivers/media/platform/msm/camera_v2/sensor/flash/msm_flash.c
++++ b/drivers/media/platform/msm/camera_v2/sensor/flash/msm_flash.c
+@@ -361,16 +361,14 @@ static int32_t msm_flash_gpio_init(
+ static int32_t msm_flash_i2c_release(
+ 	struct msm_flash_ctrl_t *flash_ctrl)
+ {
+-	int32_t rc;
+-
+-	rc = msm_camera_power_down(&flash_ctrl->power_info,
++	if (msm_camera_power_down(&flash_ctrl->power_info,
+ 		flash_ctrl->flash_device_type,
+-		&flash_ctrl->flash_i2c_client);
+-	if (rc < 0) {
++		&flash_ctrl->flash_i2c_client) < 0) {
+ 		pr_err("%s msm_camera_power_down failed %d\n",
+ 			__func__, __LINE__);
+ 		return -EINVAL;
+ 	}
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/media/platform/msm/camera_v2/sensor/io/msm_camera_dt_util.c b/drivers/media/platform/msm/camera_v2/sensor/io/msm_camera_dt_util.c
+index 00860d05671d..457bd1730232 100644
+--- a/drivers/media/platform/msm/camera_v2/sensor/io/msm_camera_dt_util.c
++++ b/drivers/media/platform/msm/camera_v2/sensor/io/msm_camera_dt_util.c
+@@ -1353,7 +1353,7 @@ int msm_cam_sensor_handle_reg_gpio(int seq_val,
+ 	CDBG("%s: %d GPIO offset: %d, seq_val: %d\n", __func__, __LINE__,
+ 		gpio_offset, seq_val);
+ 
+-	if (gconf->gpio_num_info->valid[gpio_offset] == 1) {
++	if ((gconf->gpio_num_info->valid[gpio_offset] == 1)) {
+ 		gpio_set_value_cansleep(
+ 			gconf->gpio_num_info->gpio_num
+ 			[gpio_offset], val);
+diff --git a/drivers/media/platform/msm/camera_v2/sensor/msm_sensor_driver.c b/drivers/media/platform/msm/camera_v2/sensor/msm_sensor_driver.c
+index 4d14284af5a7..ad737f7e6eb5 100644
+--- a/drivers/media/platform/msm/camera_v2/sensor/msm_sensor_driver.c
++++ b/drivers/media/platform/msm/camera_v2/sensor/msm_sensor_driver.c
+@@ -24,7 +24,6 @@ extern struct vendor_eeprom s_vendor_eeprom[CAMERA_VENDOR_EEPROM_COUNT_MAX];
+ /* Logging macro */
+ #undef CDBG
+ #define CDBG(fmt, args...) pr_debug(fmt, ##args)
+-#define LCT_CAMERA_DEBUG 0
+ 
+ #define SENSOR_MAX_MOUNTANGLE (360)
+ 
+@@ -188,14 +187,7 @@ static int32_t msm_sensor_fill_eeprom_subdevid_by_name(
+ 
+ 	if (!s_ctrl->sensordata->eeprom_name || !of_node)
+ 		return -EINVAL;
+-	#if LCT_CAMERA_DEBUG
+-	pr_err("msm_sensor_fill_eeprom_subdevid_by_name s_ctrl->sensordata->eeprom_name  = %s \n", s_ctrl->sensordata->eeprom_name);
+-	pr_err("msm_sensor_fill_eeprom_subdevid_by_name s_ctrl->sensordata->sensor_name = %s \n", s_ctrl->sensordata->sensor_name);
+-	#endif
+ 	eeprom_name_len = strlen(s_ctrl->sensordata->eeprom_name);
+-	#if LCT_CAMERA_DEBUG
+-	pr_err("msm_sensor_fill_eeprom_subdevid_by_name eeprom_name_len  = %d \n", eeprom_name_len);
+-	#endif
+ 	if (eeprom_name_len >= MAX_SENSOR_NAME)
+ 		return -EINVAL;
+ 
+@@ -215,9 +207,6 @@ static int32_t msm_sensor_fill_eeprom_subdevid_by_name(
+ 		return 0;
+ 
+ 	count /= sizeof(uint32_t);
+-	#if LCT_CAMERA_DEBUG
+-	pr_err("msm_sensor_fill_eeprom_subdevid_by_name count  = %d \n", count);
+-	#endif
+ 	for (i = 0; i < count; i++) {
+ 		userspace_probe = 0;
+ 		eeprom_name = NULL;
+@@ -251,15 +240,9 @@ static int32_t msm_sensor_fill_eeprom_subdevid_by_name(
+ 			rc = of_property_read_string(src_node, "qcom,lct_eeprom-name", &lct_eeprom_name);
+ 			if(rc < 0)
+ 			{
+-				#if LCT_CAMERA_DEBUG
+-				pr_err("%s this eeprom not config  qcom,lct_eeprom-name rc = %d\n", __func__, rc);
+-				#endif
+ 			}
+ 			else
+ 			{
+-				#if LCT_CAMERA_DEBUG
+-				pr_err("msm_sensor_fill_eeprom_subdevid_by_name lct_eeprom_name = %s\n", lct_eeprom_name);
+-				#endif
+ 				if(strcmp(s_ctrl->sensordata->eeprom_name, lct_eeprom_name))
+ 				{
+ 					rc = 0;

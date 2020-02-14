@@ -36,7 +36,7 @@ wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scri
 
 # taking patch
 
-git am "${PATCHES}/01.patch"
+# git am "${PATCHES}/01.patch"
 
 chmod +x .kernel.sh
 bash ./.kernel.sh

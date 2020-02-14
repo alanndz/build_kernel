@@ -28,7 +28,7 @@ GIT_TOKEN=$(openssl enc -base64 -d <<< ${git_token})
 git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/${git_username2}/${git_repo2}.git saus
 cd saus
 
-RESET_COMMIT=$(echo $(git log --pretty=format:'%h'))
+RESET_COMMIT=$(git --no-pager log --pretty=format:'%h')
 
 wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/fusion.sh
 

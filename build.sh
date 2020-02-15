@@ -17,7 +17,7 @@ export PHONE="Redmi Note 7"
 export DEVICES="lavender"
 export CONFIG_FILE="lavender_defconfig"
 export JOBS=8
-export SEND_TO_HANA_CI=true
+# export SEND_TO_HANA_CI=true
 
 BRANCH=$(cat "${CONF}/$FOLDER/branch")
 

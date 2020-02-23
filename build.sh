@@ -46,7 +46,7 @@ git reset --hard $RESET_COMMIT
 
 # Build second kernel for camera patch
 
-export CODENAME="$(cat "${CONF}/$FOLDER/codename")_Camera"
+export CODENAME="$(cat "${CONF}/$FOLDER/codename")-New_CAM"
 make -C "${PWD}/.ToolBuild/AnyKernel3" clean &>/dev/null
 
 # Patching kernel for new patch

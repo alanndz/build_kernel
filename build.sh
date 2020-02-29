@@ -34,18 +34,18 @@ wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scri
 
 # Build first Kernel
 
-# taking patch
-
-#git am "${PATCHES}/01.patch"
-
 chmod +x .kernel.sh
 bash ./.kernel.sh
 
 # reset kernel to HEAD
-git reset --hard $RESET_COMMIT
+#
+
+export CODENAME="$(cat "${CONF}/$FOLDER/codename")-Old_CAM"
+git am "${PATCHES}/01.patch"
+bash ./.kernel.sh
 
 # Build second kernel for camera patch
-
+git reset --hard $RESET_COMMIT
 export CODENAME="$(cat "${CONF}/$FOLDER/codename")-New_CAM"
 make -C "${PWD}/.ToolBuild/AnyKernel3" clean &>/dev/null
 

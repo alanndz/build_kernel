@@ -1,4 +1,4 @@
-From cf2a90f96348c6a3142d53ca209983da18c72410 Mon Sep 17 00:00:00 2001
+From 9c9cc69b1de1ea6db18701b1be673d134d6f4674 Mon Sep 17 00:00:00 2001
 From: Qiwu Huang <huangqiwu@xiaomi.com>
 Date: Mon, 23 Dec 2019 11:24:53 +0800
 Subject: [PATCH] camera: fix new version
@@ -17,10 +17,10 @@ Signed-off-by: Qiwu Huang <huangqiwu@xiaomi.com>
  9 files changed, 53 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/media/platform/msm/camera_v2/isp/msm_isp47.c b/drivers/media/platform/msm/camera_v2/isp/msm_isp47.c
-index 0daf2d914be5a..0e2b2a66e4288 100644
+index cf9e7547d4e2..687522fcd4f6 100644
 --- a/drivers/media/platform/msm/camera_v2/isp/msm_isp47.c
 +++ b/drivers/media/platform/msm/camera_v2/isp/msm_isp47.c
-@@ -36,7 +36,7 @@
+@@ -37,7 +37,7 @@
  #define VFE47_STATS_BURST_LEN 3
  #define VFE47_UB_SIZE_VFE0 2048
  #define VFE47_UB_SIZE_VFE1 1536
@@ -30,7 +30,7 @@ index 0daf2d914be5a..0e2b2a66e4288 100644
  #define MSM_ISP47_TOTAL_IMAGE_UB_VFE1 (VFE47_UB_SIZE_VFE1 - VFE47_UB_STATS_SIZE)
  #define VFE47_WM_BASE(idx) (0xA0 + 0x2C * idx)
 diff --git a/drivers/media/platform/msm/camera_v2/isp/msm_isp48.c b/drivers/media/platform/msm/camera_v2/isp/msm_isp48.c
-index e3d8ecb410ff8..186fb6f28480c 100644
+index e3d8ecb410ff..186fb6f28480 100644
 --- a/drivers/media/platform/msm/camera_v2/isp/msm_isp48.c
 +++ b/drivers/media/platform/msm/camera_v2/isp/msm_isp48.c
 @@ -28,7 +28,7 @@
@@ -68,10 +68,10 @@ index e3d8ecb410ff8..186fb6f28480c 100644
  
  	stats_burst_len = VFE48_STATS_BURST_LEN;
 diff --git a/drivers/media/platform/msm/camera_v2/sensor/msm_sensor.c b/drivers/media/platform/msm/camera_v2/sensor/msm_sensor.c
-index 7c1c34207d270..4e267696f9b64 100644
+index d883e1384bdd..a0f630cf4dcd 100644
 --- a/drivers/media/platform/msm/camera_v2/sensor/msm_sensor.c
 +++ b/drivers/media/platform/msm/camera_v2/sensor/msm_sensor.c
-@@ -239,7 +239,9 @@ int msm_sensor_match_vendor_id(struct msm_sensor_ctrl_t *s_ctrl)
+@@ -238,7 +238,9 @@ int msm_sensor_match_vendor_id(struct msm_sensor_ctrl_t *s_ctrl)
  	const char *sensor_name;
  	uint16_t temp_sid = 0;
  	uint16_t vcmid = 0;
@@ -81,7 +81,7 @@ index 7c1c34207d270..4e267696f9b64 100644
  	enum cci_i2c_master_t temp_master = MASTER_0;
  
  
-@@ -297,6 +299,16 @@ int msm_sensor_match_vendor_id(struct msm_sensor_ctrl_t *s_ctrl)
+@@ -296,6 +298,16 @@ int msm_sensor_match_vendor_id(struct msm_sensor_ctrl_t *s_ctrl)
  		have_vcmid = 1;
  	}
  
@@ -98,7 +98,7 @@ index 7c1c34207d270..4e267696f9b64 100644
  	sensor_i2c_client->cci_client->sid = temp_sid;
  	sensor_i2c_client->cci_client->cci_i2c_master = temp_master;
  	if (rc < 0) {
-@@ -328,6 +340,21 @@ int msm_sensor_match_vendor_id(struct msm_sensor_ctrl_t *s_ctrl)
+@@ -327,6 +339,21 @@ int msm_sensor_match_vendor_id(struct msm_sensor_ctrl_t *s_ctrl)
  				__func__, vcmid, s_ctrl->sensordata->vcm_id_info->vcm_id);
  			}
  		}
@@ -121,10 +121,10 @@ index 7c1c34207d270..4e267696f9b64 100644
  	pr_err("%s: read vendor id: 0x%x expected id 0x%x:\n",
  			__func__, vendorid, s_ctrl->sensordata->vendor_id_info->vendor_id);
 diff --git a/drivers/media/platform/msm/camera_v2/sensor/msm_sensor_driver.c b/drivers/media/platform/msm/camera_v2/sensor/msm_sensor_driver.c
-index 0c262000c73d0..5eb59d0bece03 100644
+index 4d14284af5a7..0185289cf5de 100644
 --- a/drivers/media/platform/msm/camera_v2/sensor/msm_sensor_driver.c
 +++ b/drivers/media/platform/msm/camera_v2/sensor/msm_sensor_driver.c
-@@ -1338,6 +1338,7 @@ int32_t msm_sensor_driver_probe(void *setting,
+@@ -1337,6 +1337,7 @@ int32_t msm_sensor_driver_probe(void *setting,
  		slave_info->sensor_id_info = slave_info32->sensor_id_info;
  		slave_info->vendor_id_info = slave_info32->vendor_id_info;
  		slave_info->vcm_id_info = slave_info32->vcm_id_info;
@@ -132,7 +132,7 @@ index 0c262000c73d0..5eb59d0bece03 100644
  
  		slave_info->slave_addr = slave_info32->slave_addr;
  		slave_info->power_setting_array.size =
-@@ -1580,7 +1581,7 @@ int32_t msm_sensor_driver_probe(void *setting,
+@@ -1579,7 +1580,7 @@ CSID_TG:
  	s_ctrl->sensordata->flash_name = slave_info->flash_name;
  	s_ctrl->sensordata->vendor_id_info = &(slave_info->vendor_id_info);
  	s_ctrl->sensordata->vcm_id_info = &(slave_info->vcm_id_info);
@@ -142,7 +142,7 @@ index 0c262000c73d0..5eb59d0bece03 100644
  	/*
  	 * Update eeporm subdevice Id by input eeprom name
 diff --git a/include/media/msm_cam_sensor.h b/include/media/msm_cam_sensor.h
-index d2f97a9e69da7..79c8666db7129 100644
+index d2f97a9e69da..79c8666db712 100644
 --- a/include/media/msm_cam_sensor.h
 +++ b/include/media/msm_cam_sensor.h
 @@ -39,6 +39,7 @@ struct msm_camera_sensor_slave_info32 {
@@ -154,10 +154,10 @@ index d2f97a9e69da7..79c8666db7129 100644
  	uint8_t  is_init_params_valid;
  	struct msm_sensor_init_params sensor_init_params;
 diff --git a/include/soc/qcom/camera2.h b/include/soc/qcom/camera2.h
-index 27787928a364d..c7002b7bb7d49 100644
+index e6e06aaa1e4b..355b743147eb 100644
 --- a/include/soc/qcom/camera2.h
 +++ b/include/soc/qcom/camera2.h
-@@ -196,6 +196,7 @@ struct msm_camera_sensor_board_info {
+@@ -195,6 +195,7 @@ struct msm_camera_sensor_board_info {
  	struct msm_camera_slave_info *slave_info;
  	struct msm_vendor_id_info_t *vendor_id_info;
  	struct msm_vcm_id_info_t *vcm_id_info;
@@ -166,7 +166,7 @@ index 27787928a364d..c7002b7bb7d49 100644
  	struct msm_camera_sensor_strobe_flash_data *strobe_flash_data;
  	struct msm_actuator_info *actuator_info;
 diff --git a/include/uapi/media/msm_camera.h b/include/uapi/media/msm_camera.h
-index 81e350ede6eb3..4012e3e7d8c05 100644
+index 81e350ede6eb..4012e3e7d8c0 100644
 --- a/include/uapi/media/msm_camera.h
 +++ b/include/uapi/media/msm_camera.h
 @@ -263,7 +263,7 @@ struct msm_mctl_post_proc_cmd {
@@ -179,7 +179,7 @@ index 81e350ede6eb3..4012e3e7d8c05 100644
  #define MAX_CAM_NAME_SIZE 32
  #define MAX_ACT_MOD_NAME_SIZE 32
 diff --git a/include/uapi/media/msm_camsensor_sdk.h b/include/uapi/media/msm_camsensor_sdk.h
-index d35124c5a154c..497115f6aa835 100644
+index d35124c5a154..497115f6aa83 100644
 --- a/include/uapi/media/msm_camsensor_sdk.h
 +++ b/include/uapi/media/msm_camsensor_sdk.h
 @@ -325,6 +325,14 @@ struct msm_vcm_id_info_t {
@@ -206,7 +206,7 @@ index d35124c5a154c..497115f6aa835 100644
  	unsigned char  is_init_params_valid;
  	struct msm_sensor_init_params sensor_init_params;
 diff --git a/include/uapi/media/msmb_camera.h b/include/uapi/media/msmb_camera.h
-index 0a2dd446ccc47..448a598e3769b 100644
+index 0a2dd446ccc4..448a598e3769 100644
 --- a/include/uapi/media/msmb_camera.h
 +++ b/include/uapi/media/msmb_camera.h
 @@ -53,7 +53,7 @@
@@ -218,3 +218,6 @@ index 0a2dd446ccc47..448a598e3769b 100644
  
  /* The below macro is defined to put an upper limit on maximum
   * number of buffer requested per stream. In case of extremely
+-- 
+2.17.1
+

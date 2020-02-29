@@ -26,5 +26,7 @@ GIT_TOKEN=$(openssl enc -base64 -d <<< ${git_token})
 git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/${git_link_fourteen}.git saus
 cd saus
 
+wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/perf.sh
+
 chmod +x .kernel.sh
 bash ./.kernel.sh

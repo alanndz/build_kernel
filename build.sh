@@ -39,10 +39,10 @@ bash ./.kernel.sh
 
 # reset kernel to HEAD
 #
-
-export CODENAME="$(cat "${CONF}/$FOLDER/codename")-Old_CAM"
-git am "${PATCHES}/01.patch"
-bash ./.kernel.sh
+#make -C "${PWD}/.ToolBuild/AnyKernel3" clean &>/dev/null
+#export CODENAME="$(cat "${CONF}/$FOLDER/codename")-Old_CAM"
+#git am "${PATCHES}/01.patch"
+#bash ./.kernel.sh
 
 # Build second kernel for camera patch
 git reset --hard $RESET_COMMIT
@@ -52,5 +52,4 @@ make -C "${PWD}/.ToolBuild/AnyKernel3" clean &>/dev/null
 # Patching kernel for new patch
 # curl https://github.com/MiCode/Xiaomi_Kernel_OpenSource/commit/cf2a90f96348c6a3142d53ca209983da18c72410.patch | git am
 git am "${PATCHES}/02.patch"
-
 bash ./.kernel.sh

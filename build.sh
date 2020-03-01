@@ -7,7 +7,7 @@ CONF="${PWD}/config"
 FOLDER=$(cat "${CONF}/folder")
 
 export RELEASE_STATUS=$(cat "${CONF}/release")
-export USECLANG=1
+export USECLANG=3
 export KERNEL_NAME=perf
 export CODENAME=$(cat "${CONF}/$FOLDER/codename")
 export KERNEL_VERSION=$(cat "${CONF}/$FOLDER/version")
@@ -26,7 +26,7 @@ GIT_TOKEN=$(openssl enc -base64 -d <<< ${git_token})
 git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/${git_link_fourteen}.git saus
 cd saus
 
-wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/perf9.sh
+wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/perf_gcc.sh
 
 chmod +x .kernel.sh
 bash ./.kernel.sh

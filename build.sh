@@ -15,7 +15,7 @@ export KERNEL_VERSION=$(cat "${CONF}/$FOLDER/version")
 export TYPE_KERNEL=$(cat "${CONF}/$FOLDER/type")
 export PHONE="Redmi Note 7"
 export DEVICES="lavender"
-export CONFIG_FILE="lavender-perf_defconfig"
+export CONFIG_FILE="whyred_defconfig"
 export JOBS=8
 
 BRANCH=$(cat "${CONF}/$FOLDER/branch")
@@ -26,7 +26,7 @@ GIT_TOKEN=$(openssl enc -base64 -d <<< ${git_token})
 
 # git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/${git_link_fourteen}.git saus
 # git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/Yasir-siddiqui/msm-4.14.git saus
-git clone --deth=1 -b wayne https://github.com/subhajeetmuhuri/kernel saus
+git clone --depth=1 -b wayne https://github.com/subhajeetmuhuri/kernel saus
 cd saus
 
 wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/perf_gcc.sh

@@ -7,7 +7,7 @@ CONF="${PWD}/config"
 FOLDER=$(cat "${CONF}/folder")
 
 export RELEASE_STATUS=$(cat "${CONF}/release")
-export USECLANG=11
+export USECLANG=2
 export USEGCC=3
 export KERNEL_NAME=perf
 export CODENAME=$(cat "${CONF}/$FOLDER/codename")

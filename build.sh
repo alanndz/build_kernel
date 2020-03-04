@@ -7,7 +7,7 @@ CONF="${PWD}/config"
 FOLDER=$(cat "${CONF}/folder")
 
 export RELEASE_STATUS=$(cat "${CONF}/release")
-export USECLANG=2
+export USECLANG=11
 export USEGCC=3
 export KERNEL_NAME=perf
 export CODENAME=$(cat "${CONF}/$FOLDER/codename")
@@ -28,7 +28,7 @@ GIT_TOKEN=$(openssl enc -base64 -d <<< ${git_token})
 git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/Yasir-siddiqui/msm-4.14.git saus
 cd saus
 
-wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/perf9.sh
+wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/perf.sh
 
 chmod +x .kernel.sh
 bash ./.kernel.sh

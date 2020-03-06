@@ -25,7 +25,7 @@ export token=${token_tele}
 GIT_TOKEN=$(openssl enc -base64 -d <<< ${git_token})
 
 # git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/${git_link_fourteen}.git saus
-git clone --depth=1 -b msm-4.14-8 https://${git_username}:$GIT_TOKEN@github.com/Yasir-siddiqui/msm-4.14.git saus
+git clone --depth=1 -b master https://${git_username}:$GIT_TOKEN@github.com/Yasir-siddiqui/sdm660-msm-4.14.git saus
 cd saus
 
 wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/perf.sh

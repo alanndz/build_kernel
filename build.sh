@@ -43,6 +43,10 @@ bash ./.kernel.sh
 #export CODENAME="$(cat "${CONF}/$FOLDER/codename")-Old_CAM"
 #git am "${PATCHES}/01.patch"
 #bash ./.kernel.sh
+# detect wen compile failed
+if [ ! -f ".Output/arch/arm64/boot/Image.gz-dtb" ]; then
+    exit
+fi
 
 # Build second kernel for camera patch
 git reset --hard $RESET_COMMIT

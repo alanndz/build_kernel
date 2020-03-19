@@ -8,8 +8,8 @@ FOLDER=$(cat "${CONF}/folder")
 PATCHES="${PWD}/patches"
 
 export RELEASE_STATUS=$(cat "${CONF}/release")
-export USECLANG=11
-export KERNEL_NAME=Fusion
+export USECLANG="nusantara-10"
+export KERNEL_NAME="Fusion"
 export CODENAME=$(cat "${CONF}/$FOLDER/codename")
 export KERNEL_VERSION=$(cat "${CONF}/$FOLDER/version")
 export TYPE_KERNEL=$(cat "${CONF}/$FOLDER/type")

@@ -9,7 +9,7 @@ PATCHES="${PWD}/patches"
 
 export RELEASE_STATUS=$(cat "${CONF}/release")
 export USECLANG="nusantara-10"
-export USEGCC=92
+export USEGCC=10
 export KERNEL_NAME="Fusion"
 export CODENAME=$(cat "${CONF}/$FOLDER/codename")
 export KERNEL_VERSION=$(cat "${CONF}/$FOLDER/version")

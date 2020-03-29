@@ -9,6 +9,7 @@ PATCHES="${PWD}/patches"
 
 export RELEASE_STATUS=$(cat "${CONF}/release")
 export USECLANG="nusantara-10"
+export USEGCC=92
 export KERNEL_NAME="Fusion"
 export CODENAME=$(cat "${CONF}/$FOLDER/codename")
 export KERNEL_VERSION=$(cat "${CONF}/$FOLDER/version")
@@ -30,7 +31,7 @@ cd saus
 
 RESET_COMMIT=$(git --no-pager log --pretty=format:'%h')
 
-wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/fusion.sh
+wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/fusion_gcc.sh
 
 # Build first Kernel
 

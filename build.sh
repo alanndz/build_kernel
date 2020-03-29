@@ -45,16 +45,16 @@ bash ./.kernel.sh
 #git am "${PATCHES}/01.patch"
 #bash ./.kernel.sh
 # detect wen compile failed
-if [ ! -f ".Output/arch/arm64/boot/Image.gz-dtb" ]; then
-    exit
-fi
+#if [ ! -f ".Output/arch/arm64/boot/Image.gz-dtb" ]; then
+#    exit
+#fi
 
 # Build second kernel for camera patch
-git reset --hard $RESET_COMMIT
-export CODENAME="$(cat "${CONF}/$FOLDER/codename")-New_CAM"
-make -C "${PWD}/.ToolBuild/AnyKernel3" clean &>/dev/null
+#git reset --hard $RESET_COMMIT
+#export CODENAME="$(cat "${CONF}/$FOLDER/codename")-New_CAM"
+#make -C "${PWD}/.ToolBuild/AnyKernel3" clean &>/dev/null
 
 # Patching kernel for new patch
 # curl https://github.com/MiCode/Xiaomi_Kernel_OpenSource/commit/cf2a90f96348c6a3142d53ca209983da18c72410.patch | git am
-git am "${PATCHES}/02.patch"
-bash ./.kernel.sh
+#git am "${PATCHES}/02.patch"
+#bash ./.kernel.sh

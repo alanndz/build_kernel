@@ -31,7 +31,7 @@ cd saus
 
 RESET_COMMIT=$(git --no-pager log --pretty=format:'%h')
 
-wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/fusion_gcc.sh
+wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/fusion.sh
 
 # Build first Kernel
 

@@ -8,17 +8,19 @@ FOLDER=$(cat "${CONF}/folder")
 PATCHES="${PWD}/patches"
 
 export RELEASE_STATUS=$(cat "${CONF}/release")
-export USECLANG="nusantara-10"
-export USEGCC=93
 export KERNEL_NAME="aLn"
 export CODENAME=$(cat "${CONF}/$FOLDER/codename")
-export KERNEL_VERSION=$(cat "${CONF}/$FOLDER/version")
-export TYPE_KERNEL=$(cat "${CONF}/$FOLDER/type")
+export RELEASE_VERSION=$(cat "${CONF}/$FOLDER/version")
+export KERNEL_TYPE=$(cat "${CONF}/$FOLDER/type")
 export PHONE="Redmi Note 7"
 export DEVICES="lavender"
 export CONFIG_FILE="lavender_defconfig"
+export USECLANG="nusantara-10"
+export USEGCC=93
+export CHAT_ID=$(openssl enc -base64 -d <<< LTEwMDEyMzAyMDQ5MjMK)
+export DEVELOPER="alanndz"
+export HOST="noob_lavender-dev"
 export JOBS=8
-# export SEND_TO_HANA_CI=true
 BRANCH=$(cat "${CONF}/$FOLDER/branch")
 
 unset token
@@ -30,7 +32,7 @@ cd saus
 
 RESET_COMMIT=$(git --no-pager log --pretty=format:'%h')
 
-wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/fusion_gcc.sh
+wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/global.sh
 
 # Build first Kernel
 

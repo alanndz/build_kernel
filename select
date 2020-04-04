@@ -1,0 +1,209 @@
+#!/usr/bin/env python
+#
+# Copyright (C) 2019 @alanndz (Telegram and Github)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+import sys, getopt, os, subprocess
+
+cwd = os.getcwd()
+config = os.path.join(cwd, 'config') # config/
+which = lambda: open(os.path.join(config, 'folder')).read() # config/folder
+kernel = 'Fusion'
+status = lambda idk, codename, version, type, branch: '''
+>>> %s :
+
+Codename: %s
+Kernel Version: %s
+Scheduler Kernel: %s
+Branch: %s ''' %(idk, codename, version, type, branch)
+__help__ = '''Usage: select [Command] [Argument]
+
+Commands:
+Simple\tLong\t\tDetail
+-h\t--help\t\tShow this text
+-n\t--new\t\tCreate new
+-u\t--update\tUpdate Codename, Type, and other (need argument)
+-r\t--release\tRelease Kernel or Not
+-s\t--switch\tSwitch to another stuff (need argument)
+-l\t--list\t\tShow list stuff
+-d\t--delete\tDelete stuff (need argument)
+-c\t--commit\tCommit default True, if want false just add this
+
+A command is needed.'''
+
+def sh(cmd, input="", cwd=cwd, silence = False):
+    rst = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, input=input.encode("utf-8"), cwd=cwd)
+    assert rst.returncode == 0, rst.stderr.decode("utf-8")
+    if silence:
+        return rst.stdout.decode("utf-8")
+    return print (rst.stdout.decode("utf-8"))
+
+def rmdir(dir):
+    for i in os.listdir(dir):
+        os.remove(os.path.join(dir, i))
+    os.rmdir(dir)
+
+class Main:
+    def __init__(a, argv):
+        unixOpt = "hnu:rs:ld:c"
+        gnuOpt = ["help", "new", "update=",
+                 "release", "switch=",
+                 "list", "delete=",
+                 "commit"]
+        a.commit = True
+        if len(argv) == 0:
+            print (__help__)
+            sys.exit()
+        try:
+            opts, args = getopt.getopt(argv, unixOpt, gnuOpt)
+        except getopt.GetoptError as err:
+            print (str(err))
+            sys.exit(2)
+        for opt, arg in opts:
+            if opt in ("-h", "--help"):
+                print (__help__)
+                sys.exit()
+            elif opt in ("-n", "--new"):
+                a.new()
+            elif opt in ("-u", "--update"):
+                l = a.list()
+                if not arg in l:
+                    print ('Your value is not exist or not availabe, check use -l or --list')
+                    sys.exit()
+                a.update(arg)
+            elif opt in ("-r", "--release"):
+                if a.upRelease():
+                    a.addCommit('RELEASE: True')
+                else:
+                    a.addCommit('RELEASE: False')
+            elif opt in ("-s", "--switch"):
+                if not arg in a.list():
+                    print ('Your value is not exist or not available, check using -l or --list')
+                    sys.exit()
+                open(os.path.join(config, 'folder'), 'w').write(arg)
+                a.addCommit('SWITCH: %s' %(arg))
+            elif opt in ("-l", "--list"):
+                a.status()
+            elif opt in ("-c", "--commit"):
+                a.commit = False
+            elif opt in ("-d", "--delete"):
+                if not arg in a.list():
+                    print ('Your value is not exist or not available, check using -l or --list')
+                    sys.exit()
+                rmdir(os.path.join(config, arg))
+                a.addCommit('DELETE: %s' %(arg))
+                print ('Success delete: %s' % arg)
+
+    def addCommit(a, value):
+        if a.commit:
+            #print (value)
+            sh('git add . && git commit -asm "%s"' %(value))
+
+    def new(a):
+        while 1:
+            fol = input('Enter a folder/name: ')
+            if fol: break
+        try:
+            os.mkdir(os.path.join(config, fol))
+        except OSError as err:
+            print ('Creation folder error, exit')
+            print (str(err))
+            sys.exit()
+        else:
+            print ('Creation foler %s Success, next' % fol)
+        folder = os.path.join(config, fol)
+        open(os.path.join(config, 'folder'), 'w').write(fol)
+        a.writeConfig(folder, 'Codename', 'codename')
+        a.writeConfig(folder, 'Branch', 'branch')
+        a.upRelease()
+        while 1:
+            i = input('Enter Version Kernel: ')
+            if i: break
+        open(os.path.join(folder, 'version'), 'w').write(i)
+        a.upType(folder)
+        dict = a.getVal(folder)
+        commit = 'NEW: %s: %s: %s %s' %(dict['type'], fol, kernel, dict['codename'])
+        a.addCommit(commit)
+        del (dict)
+
+    def list(a):
+        files = os.listdir(config)
+        dir = []
+        for name in files:
+            if os.path.isdir(os.path.join(config, name)):
+                dir.append(name)
+        return dir
+
+    def upRelease(a):
+        print ('Release Kernel? \n\n[1] False \n[2] True \n')
+        while 1:
+            i = input('Enter a Value: ')
+            i = int(i)-1
+            if i == 0 or i == 1: break
+        open(os.path.join(config, 'release'), 'w').write(str(i))
+        if i:
+            return True
+        else:
+            return False
+
+    def upType(a, folder):
+        print ('Choose Scheduler Kernel: \n\n[1] HMP\n[2] EAS\n[3] CFS\n')
+        while 1:
+            i = input('Enter a Value: ')
+            i = int(i)
+            if i == 1 or i == 2 or i == 3: break
+        w = open(os.path.join(folder, 'type'), 'w')
+        v = ['HMP', 'EAS', 'CFS'][i-1]
+        w.write(v)
+        w.close()
+
+    def update(a, arg):
+        dir = os.path.join(config, arg)
+        print ('Editing folder %s :\n\n[1]Codename\n[2]Branch\n[3]Kernel Version\n[4]Scheduler Kernel\n' % arg)
+        list = ['codename', 'branch', 'version', 'type']
+        i = input('Enter Choose: ')
+        i = int(i)-1
+        if i == 3:
+            a.upType(dir)
+            dict = a.getVal(dir)
+            a.addCommit('UPDATE: Scheduler: %s: %s' %(arg, dict['type']))
+            return
+        r = open(os.path.join(dir, list[i])).read()
+        print ('\nOld %s is %s \n' %(list[i], r))
+        j = input('Enter new value: ')
+        open(os.path.join(dir, list[i]), 'w').write(j)
+        commit = 'UPDATE: %s: %s: from %s to %s' %(arg, list[i], r, j)
+        a.addCommit(commit)
+
+    def status(a):
+        print ('Global Release: %s' %(open(os.path.join(config, 'release')).read()))
+        print ('Folder will be compile: %s' %(open(os.path.join(config, 'folder')).read()))
+        list = ['codename', 'version', 'type', 'branch']
+        data = []
+        l = a.list()
+        for i in l:
+            for j in list:
+                dir = os.path.join(config, i)
+                r = open(os.path.join(dir, j)).read()
+                data.append(r)
+            print (status(i, data[0], data[1], data[2], data[3]))
+            data = []
+
+    def getVal(a, dir):
+        list = ['codename', 'type', 'version', 'branch']
+        data = {}
+        for i in list:
+            r = open(os.path.join(dir, i)).read()
+            data[i] = r
+        return data
+
+    def writeConfig(a, dir, ask, conf):
+        while 1:
+            i = input('Enter a %s: ' % ask)
+            if i: break
+        w = open(os.path.join(dir, conf), 'w')
+        w.write(i)
+        w.close()
+
+if __name__ == "__main__":
+   Main(sys.argv[1:])

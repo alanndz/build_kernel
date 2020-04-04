@@ -8,7 +8,7 @@ FOLDER=$(cat "${CONF}/folder")
 PATCHES="${PWD}/patches"
 
 export RELEASE_STATUS=$(cat "${CONF}/release")
-export KERNEL_NAME="aLn"
+export KERNEL_NAME="Fusion"
 export CODENAME=$(cat "${CONF}/$FOLDER/codename")
 export RELEASE_VERSION=$(cat "${CONF}/$FOLDER/version")
 export KERNEL_TYPE=$(cat "${CONF}/$FOLDER/type")
@@ -18,15 +18,14 @@ export CONFIG_FILE="lavender_defconfig"
 export USECLANG="nusantara-10"
 export USEGCC=93
 export CHAT_ID=$(openssl enc -base64 -d <<< LTEwMDEyMzAyMDQ5MjMK)
-export DEVELOPER="alanndz"
-export HOST="noob_lavender-dev"
+export DEVELOPER="alanndz-nicklas373"
+export HOST="fusion_lavender-dev"
 export JOBS=8
 BRANCH=$(cat "${CONF}/$FOLDER/branch")
-
 unset token
 export token=${token_tele}
 GIT_TOKEN=$(openssl enc -base64 -d <<< ${git_token})
-git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/${git_username}/${git_repo}.git saus
+git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/${git_username2}/${git_repo2}.git saus
 
 cd saus
 

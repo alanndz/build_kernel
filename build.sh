@@ -21,6 +21,7 @@ export USEGCC=93
 export CHAT_ID=$(openssl enc -base64 -d <<< LTEwMDEyMzAyMDQ5MjMK)
 export DEVELOPER="alanndz"
 export HOST="noob_lavender-dev"
+export AK_BRANCH="lavender"
 export JOBS=8
 BRANCH=$(cat "${CONF}/$FOLDER/branch")
 

@@ -34,6 +34,7 @@ cd saus
 RESET_COMMIT=$(git --no-pager log --pretty=format:'%h')
 
 wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/global.sh
+
 chmod +x .kernel.sh
 
 # Build first Kernel
@@ -42,7 +43,7 @@ export CODENAME="$(cat "${CONF}/$FOLDER/codename")-Old_CAM"
 bash ./.kernel.sh
 
 # detect wen compile failed
-if [ ! -f ".Output/arch/arm64/boot/Image.gz-dtb" ]; then
+if [ ! -f ".Out/arch/arm64/boot/Image.gz-dtb" ]; then
     exit
 fi
 
@@ -51,3 +52,5 @@ export CODENAME="$(cat "${CONF}/$FOLDER/codename")-New_CAM"
 make -C "${PWD}/.ToolBuild/AnyKernel3" clean &>/dev/null
 git am "${PATCHES}/02.patch"
 bash ./.kernel.sh
+
+

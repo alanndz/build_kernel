@@ -35,29 +35,17 @@ cd saus
 RESET_COMMIT=$(git --no-pager log --pretty=format:'%h')
 
 wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/global.sh
-
-# Build first Kernel
-
 chmod +x .kernel.sh
+# export CODENAME="$(cat "${CONF}/$FOLDER/codename")-Old_CAM"
 bash ./.kernel.sh
 
-# reset kernel to HEAD
-#
-#make -C "${PWD}/.ToolBuild/AnyKernel3" clean &>/dev/null
-#export CODENAME="$(cat "${CONF}/$FOLDER/codename")-Old_CAM"
-#git am "${PATCHES}/01.patch"
-#bash ./.kernel.sh
 # detect wen compile failed
-if [ ! -f ".Output/arch/arm64/boot/Image.gz-dtb" ]; then
-    exit
+if [ ! -f ".Out/arch/arm64/boot/Image.gz-dtb" ]; then
+    exit 1
 fi
 
-# Build second kernel for camera patch
-#git reset --hard $RESET_COMMIT
-#export CODENAME="$(cat "${CONF}/$FOLDER/codename")-New_CAM"
-#make -C "${PWD}/.ToolBuild/AnyKernel3" clean &>/dev/null
-
-# Patching kernel for new patch
-# curl https://github.com/MiCode/Xiaomi_Kernel_OpenSource/commit/cf2a90f96348c6a3142d53ca209983da18c72410.patch | git am
-#git am "${PATCHES}/02.patch"
-#bash ./.kernel.sh
+# New Camera Blobs
+export CODENAME="$(cat "${CONF}/$FOLDER/codename")-New_CAM"
+make -C "${PWD}/.ToolBuild/AnyKernel3" clean &>/dev/null
+git am "${PATCHES}/02.patch"
+bash ./.kernel.sh

@@ -7,7 +7,7 @@ CONF="${PWD}/config"
 FOLDER=$(cat "${CONF}/folder")
 PATCHES="${PWD}/patches"
 
-export RELEASE_STATUS=1 #$(cat "${CONF}/release")
+export RELEASE_STATUS="true" #$(cat "${CONF}/release")
 export KERNEL_NAME="Fusion"
 export CODENAME=$(cat "${CONF}/$FOLDER/codename")
 export RELEASE_VERSION="r5" #$(cat "${CONF}/$FOLDER/version")

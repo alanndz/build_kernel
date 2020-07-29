@@ -28,7 +28,7 @@ BRANCH=$(cat "${CONF}/$FOLDER/branch")
 unset token
 export token=${token_tele}
 GIT_TOKEN=$(openssl enc -base64 -d <<< ${git_token})
-git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/${git_username2}/${git_repo2}.git saus
+git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/HANA-CI-Build-Project/${git_repo2}.git saus
 
 cd saus
 

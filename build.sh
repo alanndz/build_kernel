@@ -9,7 +9,7 @@ PATCHES="${PWD}/patches"
 
 export RELEASE_STATUS=$(cat "${CONF}/release")
 export RELEASE_VERSION=$(cat "${CONF}/$FOLDER/version")
-export KERNEL_NAME="Fusion"
+export KERNEL_NAME="perf"
 export CODENAME=$(cat "${CONF}/$FOLDER/codename")
 export KERNEL_TYPE=$(cat "${CONF}/$FOLDER/type")
 export PHONE="Redmi Note 7"
@@ -17,19 +17,19 @@ export DEVICES="lavender"
 export CONFIG_FILE="lavender_defconfig"
 #export COMPILER_IS_CLANG=true
 export USECLANG="proton-11"
-export USEGCC=93
+export USEGCC=3
 #export CHAT_ID="-1001251953845" #
-export CHAT_ID="-1001273145812" #
+export CHAT_ID="-100442724919" #
 #export CHAT_ID=$(openssl enc -base64 -d <<< LTEwMDEyMzAyMDQ5MjMK)
-export DEVELOPER="alanndz-nicklas373"
-export HOST="fusion_lavender-dev"
+export DEVELOPER="nono"
+export HOST="lavender-dev"
 export AK_BRANCH="fusion"
 export JOBS=8
-BRANCH=$(cat "${CONF}/$FOLDER/branch")
+BRANCH="lavender"
 unset token
 export token=${token_tele}
 GIT_TOKEN=$(openssl enc -base64 -d <<< ${git_token})
-git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/HANA-CI-Build-Project/${git_repo2}.git saus
+git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/sohamxda7/kernel_xiaomi_lavender_4.14.git saus
 
 cd saus
 
@@ -39,20 +39,4 @@ wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scri
 
 chmod +x .kernel.sh
 
-# Build first Kernel
-# export CODENAME="$(cat "${CONF}/$FOLDER/codename")-Old_CAM"
-# git am "${PATCHES}/01.patch"
 bash ./.kernel.sh
-
-# detect wen compile failed
-if [ ! -f ".Out/arch/arm64/boot/Image.gz-dtb" ]; then
-    exit
-fi
-
-# New Camera Blobs
-export CODENAME="$(cat "${CONF}/$FOLDER/codename")-New_CAM"
-make -C "${PWD}/.ToolBuild/AnyKernel3" clean &>/dev/null
-git am "${PATCHES}/02.patch"
-bash ./.kernel.sh
-
-

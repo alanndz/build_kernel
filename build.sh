@@ -15,7 +15,7 @@ export KERNEL_TYPE=$(cat "${CONF}/$FOLDER/type")
 export PHONE="Redmi Note 7"
 export DEVICES="lavender"
 export CONFIG_FILE="lavender_defconfig"
-#export COMPILER_IS_CLANG=true
+export COMPILER_IS_CLANG=true
 export USECLANG="proton-11"
 export USEGCC=93
 #export CHAT_ID="-1001251953845" #
@@ -29,11 +29,9 @@ BRANCH=$(cat "${CONF}/$FOLDER/branch")
 unset token
 export token=${token_tele}
 GIT_TOKEN=$(openssl enc -base64 -d <<< ${git_token})
-git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/HANA-CI-Build-Project/kernel_xiaomi_lavende-4.14.git saus
+git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/HANA-CI-Build-Project/kernel_xiaomi_lavender-4.14.git saus
 
 cd saus
-
-RESET_COMMIT=$(git --no-pager log --pretty=format:'%h')
 
 wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/global.sh
 

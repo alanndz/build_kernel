@@ -37,3 +37,5 @@ wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scri
 
 chmod +x .kernel.sh
 bash ./.kernel.sh
+bash ./.kernel.sh
+

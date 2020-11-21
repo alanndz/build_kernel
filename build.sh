@@ -29,7 +29,7 @@ BRANCH=$(cat "${CONF}/$FOLDER/branch")
 unset token
 export token=${token_tele}
 GIT_TOKEN=$(openssl enc -base64 -d <<< ${git_token})
-git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/HANA-CI-Build-Project/${git_repo2}.git saus
+git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/HANA-CI-Build-Project/kernel_xiaomi_lavende-4.14.git saus
 
 cd saus
 
@@ -38,21 +38,4 @@ RESET_COMMIT=$(git --no-pager log --pretty=format:'%h')
 wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/global.sh
 
 chmod +x .kernel.sh
-
-# Build first Kernel
-# export CODENAME="$(cat "${CONF}/$FOLDER/codename")-Old_CAM"
-# git am "${PATCHES}/01.patch"
 bash ./.kernel.sh
-
-# detect wen compile failed
-if [ ! -f ".Out/arch/arm64/boot/Image.gz-dtb" ]; then
-    exit
-fi
-
-# New Camera Blobs
-export CODENAME="$(cat "${CONF}/$FOLDER/codename")-New_CAM"
-make -C "${PWD}/.ToolBuild/AnyKernel3" clean &>/dev/null
-git am "${PATCHES}/02.patch"
-bash ./.kernel.sh
-
-

@@ -10,7 +10,7 @@ PATCHES="${PWD}/patches"
 export RELEASE_STATUS=$(cat "${CONF}/release")
 export RELEASE_VERSION=$(cat "${CONF}/$FOLDER/version")
 export KERNEL_NAME="Fusion"
-export CODENAME=$(cat "${CONF}/$FOLDER/codename")
+export CODENAME=$(cat "${CONF}/$FOLDER/codename")_4.14
 export KERNEL_TYPE=$(cat "${CONF}/$FOLDER/type")
 export PHONE="Redmi Note 7"
 export DEVICES="lavender"
@@ -36,6 +36,5 @@ cd saus
 wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/global.sh
 
 chmod +x .kernel.sh
-bash ./.kernel.sh
 bash ./.kernel.sh
 

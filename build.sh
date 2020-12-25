@@ -23,7 +23,7 @@ export CHAT_ID="-1001273145812" #
 #export CHAT_ID=$(openssl enc -base64 -d <<< LTEwMDEyMzAyMDQ5MjMK)
 export DEVELOPER="alanndz-nicklas373"
 export HOST="fusion_lavender-dev"
-export AK_BRANCH="fusion-4.14"
+export AK_BRANCH="fusion"
 export JOBS=8
 BRANCH=$(cat "${CONF}/$FOLDER/branch")
 unset token

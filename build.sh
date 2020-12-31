@@ -33,7 +33,7 @@ git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/HAN
 
 cd saus
 
-wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/global.sh
+wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/perf3.sh
 
 chmod +x .kernel.sh
 bash ./.kernel.sh

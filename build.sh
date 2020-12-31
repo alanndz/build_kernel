@@ -16,7 +16,7 @@ export PHONE="Redmi Note 7"
 export DEVICES="lavender"
 export CONFIG_FILE="lavender_defconfig"
 export COMPILER_IS_CLANG=true
-export USECLANG="proton-latest"
+export USECLANG="proton-11"
 export USEGCC=93
 #export CHAT_ID="-1001251953845" #
 export CHAT_ID="-1001273145812" #
@@ -33,7 +33,7 @@ git clone --depth=1 -b $BRANCH https://${git_username}:$GIT_TOKEN@github.com/HAN
 
 cd saus
 
-wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/perf3.sh
+wget --output-document=.kernel.sh https://raw.githubusercontent.com/alanndz/scripts/master/ci/perf2.sh
 
 chmod +x .kernel.sh
 bash ./.kernel.sh
